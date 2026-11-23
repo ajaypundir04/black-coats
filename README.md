@@ -77,8 +77,13 @@ black-coats/
 │       └── ci.yml                            # Build & ArchUnit architecture gate
 ├── docs/
 │   ├── SYSTEM_DESIGN.md                     # Complete architectural specification
+│   ├── RENDER_DEPLOYMENT_GUIDE.md           # Step-by-step zero-cost Render deployment
 │   ├── MARKETING_PLAYBOOK.md                 # Distribution strategy (Reddit, X, HN)
 │   └── API_SPEC.md                           # REST & SSE endpoint documentation
+├── future/                                   # Future Architecture & Modifications
+│   ├── ARCHITECTURE.md                       # Microservices, Reranker, Knowledge Graph
+│   ├── FUTURE_MODIFICATIONS.md               # Phased roadmap, Bhashini voice, e-Courts
+│   └── README.md                             # Future engineering index
 ├── black-coat-api/                           # Modular Monolith Backend
 │   ├── pom.xml                               # Java 25 & Spring Boot configuration
 │   └── src/main/
