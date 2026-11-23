@@ -1,0 +1,28 @@
+@if (chatService.isCitationDrawerOpen() && chatService.selectedCitation(); as cit) {
+  <div class="modal-overlay" (click)="chatService.closeCitationDrawer()">
+    <div class="modal-card citation-card" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="chatService.closeCitationDrawer()">✕</button>
+      
+      <div class="citation-header">
+        <span class="citation-tag">{{ cit.tag }}</span>
+        <h3>{{ cit.heading || ('Section ' + cit.sectionNo) }}</h3>
+      </div>
+
+      <div class="citation-meta">
+        <span>Act: {{ cit.actShortName }}</span>
+        <span>Section: {{ cit.sectionNo }}</span>
+      </div>
+
+      <div class="citation-content">
+        <h4>Statutory Text:</h4>
+        <p>{{ cit.textSnippet }}</p>
+      </div>
+
+      <div class="citation-footer">
+        <a href="https://www.indiacode.nic.in" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary">
+          View on India Code ↗
+        </a>
+      </div>
+    </div>
+  </div>
+}

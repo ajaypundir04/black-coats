@@ -1,0 +1,60 @@
+@if (authService.isAuthModalOpen()) {
+  <div class="modal-overlay" (click)="authService.closeAuthModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="authService.closeAuthModal()">✕</button>
+
+      <div class="modal-tabs">
+        <button 
+          class="tab-btn" 
+          [class.active]="authService.authModalTab() === 'login'"
+          (click)="authService.authModalTab.set('login')">
+          Sign In
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="authService.authModalTab() === 'register'"
+          (click)="authService.authModalTab.set('register')">
+          Create Account
+        </button>
+      </div>
+
+      @if (authService.authError(); as err) {
+        <div class="alert alert-error">{{ err }}</div>
+      }
+
+      @if (authService.authModalTab() === 'login') {
+        <form (ngSubmit)="onLogin()" class="auth-form">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" [(ngModel)]="loginData.email" name="email" required placeholder="advocate@example.com">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" [(ngModel)]="loginData.password" name="password" required placeholder="••••••••">
+          </div>
+          <button type="submit" [disabled]="isSubmitting" class="btn btn-primary btn-block">
+            {{ isSubmitting ? 'Signing In...' : 'Sign In' }}
+          </button>
+        </form>
+      } @else {
+        <form (ngSubmit)="onRegister()" class="auth-form">
+          <div class="form-group">
+            <label>Full Name / Title</label>
+            <input type="text" [(ngModel)]="registerData.displayName" name="displayName" placeholder="Advocate Rajesh Kumar">
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" [(ngModel)]="registerData.email" name="regEmail" required placeholder="advocate@example.com">
+          </div>
+          <div class="form-group">
+            <label>Password (min 8 characters)</label>
+            <input type="password" [(ngModel)]="registerData.password" name="regPassword" minlength="8" required placeholder="••••••••">
+          </div>
+          <button type="submit" [disabled]="isSubmitting" class="btn btn-primary btn-block">
+            {{ isSubmitting ? 'Creating Account...' : 'Register Free Account' }}
+          </button>
+        </form>
+      }
+    </div>
+  </div>
+}

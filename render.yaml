@@ -30,12 +30,12 @@ services:
       - key: BLACKCOAT_CORPUS_VERSION
         value: "v1.0"
 
-  # 2. Frontend Web Application (Static Site)
+  # 2. Frontend Web Application (Angular Static Site)
   - type: web
     name: black-coat-web
     runtime: static
-    buildCommand: ""
-    publishDir: ./black-coat-web
+    buildCommand: "cd black-coat-web && npm install && npm run build"
+    publishDir: ./black-coat-web/dist/black-coat-web
     plan: free
     region: oregon
     headers:

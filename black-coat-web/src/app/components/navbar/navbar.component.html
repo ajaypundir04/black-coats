@@ -1,0 +1,46 @@
+<header class="navbar">
+  <div class="navbar-brand">
+    <span class="brand-icon">⚖️</span>
+    <div class="brand-title">
+      <h1>Black-Coat</h1>
+      <span class="brand-tag">Indian Legal Intelligence</span>
+    </div>
+  </div>
+
+  <!-- Cold start status indicator -->
+  <div class="server-status" [ngClass]="'status-' + healthService.serverStatus()">
+    <span class="status-dot"></span>
+    <span class="status-label">{{ healthService.statusLabel() }}</span>
+  </div>
+
+  <div class="navbar-actions">
+    <!-- Language Selector -->
+    <div class="lang-selector">
+      <select [value]="chatService.selectedLang()" (change)="onLangChange($event)">
+        <option value="en">English (India)</option>
+        <option value="hi">हिन्दी (Hindi)</option>
+        <option value="ta">தமிழ் (Tamil)</option>
+        <option value="te">తెలుగు (Telugu)</option>
+        <option value="bn">বাংলা (Bengali)</option>
+      </select>
+    </div>
+
+    <!-- Daily Quota Remaining -->
+    <div class="quota-badge">
+      <span class="quota-icon">⚡</span>
+      <span>{{ chatService.dailyQuotaRemaining() }} / 10 queries</span>
+    </div>
+
+    <!-- Auth Controls -->
+    @if (authService.isAuthenticated()) {
+      <div class="user-menu">
+        <span class="user-name">{{ authService.user()?.displayName || 'Advocate' }}</span>
+        <button class="btn btn-sm btn-ghost" (click)="authService.logout()" title="Sign Out">🚪</button>
+      </div>
+    } @else {
+      <button class="btn btn-secondary" (click)="authService.openAuthModal('login')">
+        Sign In / Register
+      </button>
+    }
+  </div>
+</header>

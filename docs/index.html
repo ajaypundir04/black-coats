@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Black-Coat | 100% Free, Hallucination-Resistant Indian Legal AI</title>
+  <title>Black-Coat | Grounded Indian Legal AI Assistant</title>
   <meta name="description" content="Open-source Indian Legal AI assistant grounded in verified statutes (BNS 2023, BNSS, BSA). Zero running cost with triple-redundant free LLM fallback and citation verification.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -20,12 +20,17 @@
         <span class="brand-name">Black-Coat</span>
       </a>
       <nav class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#simulator">Live Demo</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#comparison">Why Black-Coat</a>
+        <a href="#about">What is Black-Coat?</a>
+        <a href="#pipeline">How it Works</a>
+        <a href="#simulator">Live Simulator</a>
+        <a href="#statutes">Supported Laws</a>
+        <a href="#comparison">Comparison</a>
         <a href="https://github.com/ajaypundir04/black-coats" target="_blank" rel="noopener" class="btn btn-github">
           ⭐ Star on GitHub
+        </a>
+        <!-- Prominent Link to the Live Deployed App -->
+        <a href="https://black-coat-web.onrender.com" target="_blank" rel="noopener" class="btn btn-primary btn-launch">
+          🚀 Open Live App
         </a>
       </nav>
     </div>
@@ -37,13 +42,17 @@
       <div class="hero-badge">Zero Cloud Cost • Open Source • DPDP Act 2023 Compliant</div>
       <h1 class="hero-title">Indian Statutory Answers<br><span class="text-gold">You Can Actually Rely On</span></h1>
       <p class="hero-subhead">
-        General LLMs invent sections and mix up repealed colonial laws with the new <strong>Bharatiya Nyaya Sanhita (BNS 2023)</strong>. 
-        Black-Coat enforces strict retrieval grounding, citation verification, and a hard refusal gate: if verified law isn't found, it refuses to guess.
+        Commercial LLMs regularly invent section numbers and cite repealed colonial laws instead of the new <strong>Bharatiya Nyaya Sanhita (BNS 2023)</strong>. 
+        <strong>Black-Coat</strong> is an open-source legal AI engineered with statutory grounding, real-time citation verification, and a hard refusal gate: if verified law isn't found, it refuses to guess.
       </p>
 
       <div class="hero-cta">
-        <a href="#simulator" class="btn btn-primary btn-lg">Try Interactive Demo ↓</a>
-        <a href="https://github.com/ajaypundir04/black-coats" target="_blank" rel="noopener" class="btn btn-secondary btn-lg">View GitHub Repository</a>
+        <!-- Direct Link to Live Web Application -->
+        <a href="https://black-coat-web.onrender.com" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
+          🚀 Launch Black-Coat Web App ↗
+        </a>
+        <a href="#simulator" class="btn btn-secondary btn-lg">Try Live Simulator ↓</a>
+        <a href="https://github.com/ajaypundir04/black-coats" target="_blank" rel="noopener" class="btn btn-github btn-lg">GitHub Repo</a>
       </div>
 
       <!-- Quick Metrics Grid -->
@@ -58,11 +67,111 @@
         </div>
         <div class="metric-card">
           <div class="metric-value">3-Tier</div>
-          <div class="metric-label">LLM Fallback (Gemini → Groq → Ollama)</div>
+          <div class="metric-label">LLM Failover (Gemini → Groq → Ollama)</div>
         </div>
         <div class="metric-card">
           <div class="metric-value">&lt;650ms</div>
-          <div class="metric-label">Average First-Token Latency</div>
+          <div class="metric-label">First-Token Streaming Latency</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: What is Black-Coat? -->
+  <section id="about" class="about-section">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">The Problem & The Solution</span>
+        <h2>Why Black-Coat Was Built</h2>
+        <p>In legal matters, an invented section number or inaccurate penalty clause is dangerous. Black-Coat replaces guesswork with verified statutory grounding.</p>
+      </div>
+
+      <div class="problem-solution-grid">
+        <div class="ps-card problem-card">
+          <div class="ps-icon">❌</div>
+          <h3>The Fatal Flaw with Generic AI</h3>
+          <ul>
+            <li><strong>Section Hallucination:</strong> Models like ChatGPT confidently invent non-existent sub-clauses and punishments.</li>
+            <li><strong>Colonial Law Confusion:</strong> Frequently cites repealed Indian Penal Code (IPC 1860) or CrPC 1973 instead of the new 2023 criminal codes.</li>
+            <li><strong>Inability to Say "I Don't Know":</strong> When uncertain, generic models extrapolate plausibly sounding legal fiction.</li>
+            <li><strong>Expensive Cloud Infrastructure:</strong> Commercial legal tools cost thousands of dollars per seat.</li>
+          </ul>
+        </div>
+
+        <div class="ps-card solution-card">
+          <div class="ps-icon">✅</div>
+          <h3>The Black-Coat Architecture</h3>
+          <ul>
+            <li><strong>Strict Statutory Grounding:</strong> Every response is generated strictly from retrieved sections of the India Code.</li>
+            <li><strong>New 2023 Codes First:</strong> Versioned corpus tracks Bharatiya Nyaya Sanhita (BNS), BNSS, and BSA alongside legacy cross-mappings.</li>
+            <li><strong>The Hard Refusal Gate:</strong> If statutory similarity is below 0.65, Black-Coat refuses to guess, returns a safe refusal, and refunds user quota.</li>
+            <li><strong>100% Free Tiers & Open Source:</strong> Built with Spring Boot 4, Java 25, PostgreSQL pgvector, and multi-tier free LLM adapters.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: How it Works (5-Stage Pipeline) -->
+  <section id="pipeline" class="pipeline-section">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">System Design Deep-Dive</span>
+        <h2>How Black-Coat Works: The 5-Stage Verification Pipeline</h2>
+        <p>Every user query undergoes strict multi-stage verification before tokens reach the screen.</p>
+      </div>
+
+      <div class="pipeline-steps">
+        <!-- Step 1 -->
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-content">
+            <h3>Script & Language Detection (Zero LLM Overhead)</h3>
+            <p>Analyzes Unicode blocks locally to detect Indic scripts (Devanagari for Hindi/Marathi, Tamil, Telugu, Bengali, Kannada) versus Latin for English in under 1ms without consuming LLM tokens.</p>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-content">
+            <h3>Hybrid Statutory Retrieval (pgvector + FTS)</h3>
+            <p>Executes two simultaneous queries across the legal database:
+              <br>• <strong>Dense Vector Search:</strong> Top-20 cosine similarity on 1024-dim BGE-M3 embeddings via PostgreSQL HNSW index.
+              <br>• <strong>Sparse Keyword Search:</strong> Top-20 full-text search using GIN on <code>tsvector</code>.
+              <br>Both rankings are fused via <strong>Reciprocal Rank Fusion (RRF, k=60)</strong> to prioritize exact statutory matches.
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-content">
+            <h3>The Hard Refusal Gate</h3>
+            <p>If the highest-ranking statute falls below our <strong>0.65 similarity threshold</strong>, the system terminates generation immediately. <strong>Zero LLM calls are made</strong>, preventing any hallucination, and the user's reserved query quota is refunded instantly.</p>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step-card">
+          <div class="step-number">04</div>
+          <div class="step-content">
+            <h3>Triple-Tier Free LLM Adapter Chain</h3>
+            <p>Protected by Resilience4j circuit breakers and timeouts:
+              <br><code>Gemini 1.5/2.0 Flash (Free)</code> → <code>Groq Llama 3.3 70B (Free)</code> → <code>Self-Hosted Ollama (Local)</code>.
+              <br>Prompts treat both user queries and statutes strictly as untrusted data, preventing prompt injection.
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="step-card">
+          <div class="step-number">05</div>
+          <div class="step-content">
+            <h3>Citation Verification & Safety Layer</h3>
+            <p>The post-processor parses every <code>[S#]</code> citation tag and matches it against database IDs. Unknown or hallucinated tags are stripped, and ungrounded free-text sections are flagged. Urgent custody or violence queries automatically append official Indian legal aid helplines (<strong>112</strong> & <strong>NALSA 15100</strong>).</p>
+          </div>
         </div>
       </div>
     </div>
@@ -123,6 +232,51 @@
           </div>
         </div>
       </div>
+
+      <!-- Live Web App Callout -->
+      <div class="simulator-callout">
+        <p>Want to test with your own legal questions?</p>
+        <a href="https://black-coat-web.onrender.com" target="_blank" rel="noopener" class="btn btn-primary">
+          🚀 Open Full Black-Coat Web Application ↗
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Supported Statutes Section -->
+  <section id="statutes" class="statutes-section">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">Statutory Coverage</span>
+        <h2>Indian Legal Corpus Supported</h2>
+        <p>Black-Coat is purpose-built for the historic transition to the 2023 criminal codes with versioned corpus tracking.</p>
+      </div>
+
+      <div class="statutes-grid">
+        <div class="statute-card">
+          <div class="statute-badge">Primary Criminal Code</div>
+          <h3>Bharatiya Nyaya Sanhita, 2023 (BNS)</h3>
+          <p>Replaces the Indian Penal Code, 1860 (IPC). Covers offenses against person, property, state, organized crime, and modern financial fraud.</p>
+        </div>
+
+        <div class="statute-card">
+          <div class="statute-badge">Criminal Procedure</div>
+          <h3>Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS)</h3>
+          <p>Replaces the Code of Criminal Procedure, 1973 (CrPC). Governs arrest procedures, custody timelines, zero-FIR, and bail standards.</p>
+        </div>
+
+        <div class="statute-card">
+          <div class="statute-badge">Evidence & Admissibility</div>
+          <h3>Bharatiya Sakshya Adhiniyam, 2023 (BSA)</h3>
+          <p>Replaces the Indian Evidence Act, 1872 (IEA). Regulates electronic records, secondary evidence, and digital forensics admissibility.</p>
+        </div>
+
+        <div class="statute-card">
+          <div class="statute-badge">Fundamental Law</div>
+          <h3>Constitution of India & Special Acts</h3>
+          <p>Fundamental Rights (Part III), POCSO Act, Information Technology Act (cyber fraud), and Protection of Women from Domestic Violence Act.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -130,9 +284,9 @@
   <section id="comparison" class="comparison-section">
     <div class="section-container">
       <div class="section-header">
-        <span class="section-tag">Comparison</span>
+        <span class="section-tag">Objective Benchmark</span>
         <h2>Why Generic AI Fails at Indian Law</h2>
-        <p>In legal matters, an invented section number is catastrophic. Here is how Black-Coat compares:</p>
+        <p>Here is how Black-Coat compares against general LLMs and traditional legal databases:</p>
       </div>
 
       <div class="comparison-table-wrapper">
@@ -161,7 +315,7 @@
             <tr>
               <td><strong>Handling Missing Information</strong></td>
               <td class="text-bad">❌ Guesses or hallucinates plausible answer</td>
-              <td>❌ Zero synthesis</td>
+              <td>❌ Zero natural language synthesis</td>
               <td class="col-highlight text-good">✅ Refusal gate: says "I don't know", refunds quota</td>
             </tr>
             <tr>
@@ -182,48 +336,22 @@
     </div>
   </section>
 
-  <!-- Architecture Highlights -->
-  <section id="architecture" class="arch-section">
-    <div class="section-container">
-      <div class="section-header">
-        <span class="section-tag">Engineered for Correctness</span>
-        <h2>High-Performance Modular Monolith</h2>
-        <p>Designed to run on a single free JVM with zero network hops and rock-solid boundaries.</p>
-      </div>
-
-      <div class="arch-cards">
-        <div class="arch-card">
-          <div class="arch-icon">🔍</div>
-          <h3>Hybrid pgvector + FTS</h3>
-          <p>Combines dense multilingual BGE-M3 embeddings on HNSW with PostgreSQL full-text search (tsvector) using Reciprocal Rank Fusion (RRF).</p>
-        </div>
-        <div class="arch-card">
-          <div class="arch-icon">🔄</div>
-          <h3>Resilience4j Provider Chain</h3>
-          <p>Cascades from Gemini 1.5/2.0 Flash to Groq Llama 3.3 70B, with local Ollama fallback when cloud APIs are rate-limited.</p>
-        </div>
-        <div class="arch-card">
-          <div class="arch-icon">🛡️</div>
-          <h3>Atomic Quotas & Grounding</h3>
-          <p>Atomic PostgreSQL reservation (10/day, 100/month) that automatically refunds queries if no verified law satisfies the similarity gate.</p>
-        </div>
-        <div class="arch-card">
-          <div class="arch-icon">🇮🇳</div>
-          <h3>Multilingual Indic Scripts</h3>
-          <p>Local script detection identifies Hindi, Tamil, Telugu, Bengali, and Marathi queries without consuming external LLM tokens.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Call to Action Banner -->
   <section class="cta-banner">
     <div class="section-container cta-content">
-      <h2>Deploy Black-Coat in 5 Minutes</h2>
-      <p>Clone the repository, start local PostgreSQL with pgvector, and run the API with zero cloud infrastructure bills.</p>
+      <h2>Experience Black-Coat Today</h2>
+      <p>Use the live hosted web application on Render or deploy your own self-hosted instance in 5 minutes with docker-compose.</p>
       <div class="cta-buttons">
-        <a href="https://github.com/ajaypundir04/black-coats" target="_blank" rel="noopener" class="btn btn-primary btn-lg">Star & Fork on GitHub</a>
-        <a href="https://github.com/ajaypundir04/black-coats/blob/main/docs/SYSTEM_DESIGN.md" target="_blank" rel="noopener" class="btn btn-secondary btn-lg">Read System Design</a>
+        <!-- Live App Link -->
+        <a href="https://black-coat-web.onrender.com" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
+          🚀 Open Live Web App ↗
+        </a>
+        <a href="https://github.com/ajaypundir04/black-coats" target="_blank" rel="noopener" class="btn btn-secondary btn-lg">
+          ⭐ Star on GitHub
+        </a>
+        <a href="https://github.com/ajaypundir04/black-coats/blob/main/docs/SYSTEM_DESIGN.md" target="_blank" rel="noopener" class="btn btn-github btn-lg">
+          Read System Design
+        </a>
       </div>
     </div>
   </section>
@@ -235,9 +363,15 @@
         <span class="brand-icon">⚖️</span>
         <span class="brand-name">Black-Coat</span>
         <p>Open-source legal AI for Indian statutes. Built with Spring Boot 4, Java 25 & pgvector.</p>
+        <div class="footer-links">
+          <a href="https://black-coat-web.onrender.com" target="_blank" rel="noopener">Live Web App</a> • 
+          <a href="https://github.com/ajaypundir04/black-coats" target="_blank" rel="noopener">GitHub Repository</a> • 
+          <a href="https://github.com/ajaypundir04/black-coats/blob/main/docs/SYSTEM_DESIGN.md" target="_blank" rel="noopener">System Design</a> • 
+          <a href="https://github.com/ajaypundir04/black-coats/blob/main/docs/API_SPEC.md" target="_blank" rel="noopener">API Spec</a>
+        </div>
       </div>
       <div class="footer-disclaimer">
-        <strong>Disclaimer:</strong> Black-Coat provides statutory information for educational research. It is not a licensed advocate and does not provide legal advice. For formal assistance, contact the National Legal Services Authority (NALSA) at 15100 or dial 112.
+        <strong>Disclaimer:</strong> Black-Coat provides statutory information for educational research. It is not an advocate and does not provide legal advice. For formal assistance, contact the National Legal Services Authority (NALSA) at 15100 or dial 112.
       </div>
     </div>
   </footer>

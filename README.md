@@ -100,13 +100,21 @@ black-coats/
 
 ## 🚀 Quickstart Guide
 
-### 1. Start Local Infrastructure
+### One-Command Local Launch (`./local.sh`)
+Start PostgreSQL with pgvector, the Spring Boot 4 backend, and the Angular frontend in one command:
+```bash
+./local.sh
+```
+This script checks prerequisites, launches containers, waits for health checks, boots the backend on `http://localhost:8080`, and serves the Angular frontend on `http://localhost:4200` with unified log tailing. Press `Ctrl+C` to cleanly stop all services.
+
+### Manual Step-by-Step Launch
+#### 1. Start Local Infrastructure
 Start PostgreSQL with `pgvector` and Ollama:
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-### 2. Configure Environment Variables
+#### 2. Configure Environment Variables
 Copy and set your free API keys:
 ```bash
 export GEMINI_API_KEY="your-free-gemini-key"
@@ -114,19 +122,19 @@ export GROQ_API_KEY="your-free-groq-key"
 export BLACKCOAT_JWT_SECRET="your-256-bit-hex-secret"
 ```
 
-### 3. Run the Backend API
+#### 3. Run the Backend API
 ```bash
 cd black-coat-api
 mvn spring-boot:run
 ```
-Flyway will automatically execute database migrations (`V1__init_schema.sql` and `V2__seed_bns_sample.sql`), initializing pgvector extensions, HNSW indexes, and baseline statutes for Bharatiya Nyaya Sanhita (BNS 2023).
 
-### 4. Test the SSE Chat Stream
+#### 4. Run the Angular Frontend
 ```bash
-curl -N -X POST http://localhost:8080/api/v1/chat/stream \
-  -H "Content-Type: application/json" \
-  -d '{"question": "What is the punishment for theft under Bharatiya Nyaya Sanhita?"}'
+cd black-coat-web
+npm install
+npm start
 ```
+Navigate to `http://localhost:4200` to interact with the streaming chat, login/registration, expandable citation drawer, and voice dictation.
 
 Output streams Server-Sent Events (`token`, `citations`, `done`):
 ```text

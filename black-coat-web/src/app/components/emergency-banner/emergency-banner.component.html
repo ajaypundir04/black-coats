@@ -1,0 +1,20 @@
+@if (chatService.emergencyNotice()) {
+  <div class="emergency-box">
+    <div class="emergency-header">
+      <span>🚨 Emergency Legal & Safety Services (India)</span>
+      <button class="btn-icon" (click)="chatService.closeEmergencyNotice()">✕</button>
+    </div>
+    <div class="emergency-body">
+      <div class="emergency-item"><strong>National Emergency:</strong> <a href="tel:112">Dial 112</a></div>
+      <div class="emergency-item"><strong>NALSA 24x7 Free Legal Aid:</strong> <a href="tel:15100">Dial 15100</a></div>
+      <div class="emergency-item"><strong>Women Helpline (NCW):</strong> <a href="tel:1091">Dial 1091</a></div>
+    </div>
+  </div>
+}
+
+<div class="disclaimer-banner">
+  <span class="disclaimer-icon">ℹ️</span>
+  <p>
+    <strong>Legal Education Notice:</strong> Black-Coat provides statutory information grounded in India Code (BNS, BNSS, BSA, IPC) and does not constitute formal legal counsel. For urgent aid, contact NALSA at <strong>15100</strong> or dial <strong>112</strong>.
+  </p>
+</div>
