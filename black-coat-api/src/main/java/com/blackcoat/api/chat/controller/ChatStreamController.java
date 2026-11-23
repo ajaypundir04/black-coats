@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -36,7 +37,7 @@ public class ChatStreamController {
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseBodyEmitter streamLegalQuestion(
         @Valid @RequestBody ChatStreamRequest request,
-        org.springframework.security.core.Authentication authentication
+        Authentication authentication
     ) {
         // Extract authenticated user ID from JWT, or default to demo UUID
         final UUID userId;

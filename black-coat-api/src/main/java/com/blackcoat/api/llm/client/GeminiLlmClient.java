@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 @Component
 public class GeminiLlmClient implements LlmClient {
 
-    private static final Logger log = LoggerFactory.getLogger(GeminiLlmClient.java);
+    private static final Logger log = LoggerFactory.getLogger(GeminiLlmClient.class);
 
     private final String apiKey;
     private final String model;
