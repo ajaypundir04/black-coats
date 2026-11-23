@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Black-Coat | 100% Free, Hallucination-Resistant Indian Legal AI</title>
+  <meta name="description" content="Open-source Indian Legal AI assistant grounded in verified statutes (BNS 2023, BNSS, BSA). Zero running cost with triple-redundant free LLM fallback and citation verification.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="#" class="brand">
+        <span class="brand-icon">⚖️</span>
+        <span class="brand-name">Black-Coat</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#simulator">Live Demo</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#comparison">Why Black-Coat</a>
+        <a href="https://github.com/ajaypundir04/black-coats" target="_blank" rel="noopener" class="btn btn-github">
+          ⭐ Star on GitHub
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-badge">Zero Cloud Cost • Open Source • DPDP Act 2023 Compliant</div>
+      <h1 class="hero-title">Indian Statutory Answers<br><span class="text-gold">You Can Actually Rely On</span></h1>
+      <p class="hero-subhead">
+        General LLMs invent sections and mix up repealed colonial laws with the new <strong>Bharatiya Nyaya Sanhita (BNS 2023)</strong>. 
+        Black-Coat enforces strict retrieval grounding, citation verification, and a hard refusal gate: if verified law isn't found, it refuses to guess.
+      </p>
+
+      <div class="hero-cta">
+        <a href="#simulator" class="btn btn-primary btn-lg">Try Interactive Demo ↓</a>
+        <a href="https://github.com/ajaypundir04/black-coats" target="_blank" rel="noopener" class="btn btn-secondary btn-lg">View GitHub Repository</a>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value">₹0</div>
+          <div class="metric-label">Operational Cloud Cost</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">100%</div>
+          <div class="metric-label">Verified Statutory Citations</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">3-Tier</div>
+          <div class="metric-label">LLM Fallback (Gemini → Groq → Ollama)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">&lt;650ms</div>
+          <div class="metric-label">Average First-Token Latency</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Live Product Simulator -->
+  <section id="simulator" class="simulator-section">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">Interactive Preview</span>
+        <h2>Experience Grounded Legal Intelligence</h2>
+        <p>Click any prompt below to see how Black-Coat retrieves Indian statutes, checks citations, and guards against hallucinations in real time.</p>
+      </div>
+
+      <div class="simulator-wrapper">
+        <div class="simulator-prompts">
+          <button class="sim-btn active" data-sim="theft">
+            <span>⚖️ Theft under BNS 2023</span>
+            <small>Section 303 definition & punishment</small>
+          </button>
+          <button class="sim-btn" data-sim="arrest">
+            <span>🛡️ Rights During Police Arrest</span>
+            <small>BNSS custody provisions & 112 / NALSA</small>
+          </button>
+          <button class="sim-btn" data-sim="cheating">
+            <span>💼 Cheating & Deceit</span>
+            <small>Section 318 statutory analysis</small>
+          </button>
+          <button class="sim-btn" data-sim="refusal">
+            <span>🚫 Hallucination Refusal Gate</span>
+            <small>Refuses ungrounded questions & refunds quota</small>
+          </button>
+        </div>
+
+        <div class="simulator-window">
+          <div class="sim-window-header">
+            <div class="window-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="sim-window-title" id="sim-status">Simulating: Gemini Flash via pgvector hybrid search</div>
+            <div class="sim-tag">SSE Streaming</div>
+          </div>
+
+          <div class="sim-window-body">
+            <div class="sim-message user-msg">
+              <span class="sim-avatar">👤</span>
+              <div class="sim-bubble" id="sim-query">What is the punishment for theft under Bharatiya Nyaya Sanhita?</div>
+            </div>
+
+            <div class="sim-message assistant-msg">
+              <span class="sim-avatar">⚖️</span>
+              <div class="sim-bubble">
+                <div id="sim-answer" class="sim-text"></div>
+                <div id="sim-citations" class="sim-citations-box"></div>
+                <div id="sim-emergency" class="sim-emergency-box hidden"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section id="comparison" class="comparison-section">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">Comparison</span>
+        <h2>Why Generic AI Fails at Indian Law</h2>
+        <p>In legal matters, an invented section number is catastrophic. Here is how Black-Coat compares:</p>
+      </div>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Evaluation Criteria</th>
+              <th>ChatGPT / General LLMs</th>
+              <th>Traditional Law Databases</th>
+              <th class="col-highlight">Black-Coat (Our System)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>BNS 2023 vs IPC Accuracy</strong></td>
+              <td class="text-bad">❌ Blends repealed IPC with BNS</td>
+              <td>✅ Accurate statutory text</td>
+              <td class="col-highlight text-good">✅ Grounded in active corpus version</td>
+            </tr>
+            <tr>
+              <td><strong>Section Citation Verification</strong></td>
+              <td class="text-bad">❌ Confidently invents section numbers</td>
+              <td>⚠️ Raw text lookup only</td>
+              <td class="col-highlight text-good">✅ Strips unknown tags, flags free text</td>
+            </tr>
+            <tr>
+              <td><strong>Handling Missing Information</strong></td>
+              <td class="text-bad">❌ Guesses or hallucinates plausible answer</td>
+              <td>❌ Zero synthesis</td>
+              <td class="col-highlight text-good">✅ Refusal gate: says "I don't know", refunds quota</td>
+            </tr>
+            <tr>
+              <td><strong>Emergency & Legal Aid Safety</strong></td>
+              <td class="text-bad">❌ Generic advice</td>
+              <td>❌ None</td>
+              <td class="col-highlight text-good">✅ Automatically connects to NALSA 15100 & 112</td>
+            </tr>
+            <tr>
+              <td><strong>Running Cost</strong></td>
+              <td class="text-bad">💸 High API and token subscriptions</td>
+              <td>💸 Expensive institutional paywalls</td>
+              <td class="col-highlight text-good">🎉 100% Free Tiers & Open Source</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture Highlights -->
+  <section id="architecture" class="arch-section">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">Engineered for Correctness</span>
+        <h2>High-Performance Modular Monolith</h2>
+        <p>Designed to run on a single free JVM with zero network hops and rock-solid boundaries.</p>
+      </div>
+
+      <div class="arch-cards">
+        <div class="arch-card">
+          <div class="arch-icon">🔍</div>
+          <h3>Hybrid pgvector + FTS</h3>
+          <p>Combines dense multilingual BGE-M3 embeddings on HNSW with PostgreSQL full-text search (tsvector) using Reciprocal Rank Fusion (RRF).</p>
+        </div>
+        <div class="arch-card">
+          <div class="arch-icon">🔄</div>
+          <h3>Resilience4j Provider Chain</h3>
+          <p>Cascades from Gemini 1.5/2.0 Flash to Groq Llama 3.3 70B, with local Ollama fallback when cloud APIs are rate-limited.</p>
+        </div>
+        <div class="arch-card">
+          <div class="arch-icon">🛡️</div>
+          <h3>Atomic Quotas & Grounding</h3>
+          <p>Atomic PostgreSQL reservation (10/day, 100/month) that automatically refunds queries if no verified law satisfies the similarity gate.</p>
+        </div>
+        <div class="arch-card">
+          <div class="arch-icon">🇮🇳</div>
+          <h3>Multilingual Indic Scripts</h3>
+          <p>Local script detection identifies Hindi, Tamil, Telugu, Bengali, and Marathi queries without consuming external LLM tokens.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action Banner -->
+  <section class="cta-banner">
+    <div class="section-container cta-content">
+      <h2>Deploy Black-Coat in 5 Minutes</h2>
+      <p>Clone the repository, start local PostgreSQL with pgvector, and run the API with zero cloud infrastructure bills.</p>
+      <div class="cta-buttons">
+        <a href="https://github.com/ajaypundir04/black-coats" target="_blank" rel="noopener" class="btn btn-primary btn-lg">Star & Fork on GitHub</a>
+        <a href="https://github.com/ajaypundir04/black-coats/blob/main/docs/SYSTEM_DESIGN.md" target="_blank" rel="noopener" class="btn btn-secondary btn-lg">Read System Design</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span class="brand-icon">⚖️</span>
+        <span class="brand-name">Black-Coat</span>
+        <p>Open-source legal AI for Indian statutes. Built with Spring Boot 4, Java 25 & pgvector.</p>
+      </div>
+      <div class="footer-disclaimer">
+        <strong>Disclaimer:</strong> Black-Coat provides statutory information for educational research. It is not a licensed advocate and does not provide legal advice. For formal assistance, contact the National Legal Services Authority (NALSA) at 15100 or dial 112.
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

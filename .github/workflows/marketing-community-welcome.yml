@@ -1,0 +1,68 @@
+name: "Marketing: Community Welcome & Social Sharing"
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+jobs:
+  welcome:
+    name: Welcome Contributor & Encourage Social Share
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Welcome First-Time Issue or PR Author
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const isPr = !!context.payload.pull_request;
+            const author = context.payload.sender.login;
+            const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
+            
+            // Check if user is first-time author in this repo
+            const authorAssociation = isPr 
+              ? context.payload.pull_request.author_association 
+              : context.payload.issue.author_association;
+
+            const tweetText = encodeURIComponent(
+              `Exploring Black-Coat: A 100% Free, Hallucination-Resistant Indian Legal AI assistant built with Spring Boot, Java 25 & pgvector! Check it out: ${repoUrl} ⚖️`
+            );
+            const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
+            
+            const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(repoUrl)}`;
+
+            const welcomeMessage = `### 👋 Namaste @${author}! Welcome to Black-Coat!
+
+            Thank you for opening this ${isPr ? 'pull request' : 'issue'} and contributing to open-source Indian legal technology! ⚖️
+
+            **Black-Coat** is engineered to provide verified legal answers grounded directly in Indian statutes (BNS 2023, BNSS, BSA, IPC) at zero operational cost.
+
+            ---
+            ### 🚀 Help Us Spread the Word:
+            If you believe in accessible legal information for all citizens:
+            - ⭐ **Star this repository** if you haven't yet!
+            - 🐦 [**Share on Twitter / X**](${tweetUrl})
+            - 💼 [**Share on LinkedIn**](${linkedInUrl})
+            - 📖 Read our [System Design](${repoUrl}/blob/main/docs/SYSTEM_DESIGN.md) & [Architecture Guidelines](${repoUrl}/blob/main/docs/API_SPEC.md)
+
+            Our core maintainers will review your ${isPr ? 'pull request' : 'issue'} shortly. Thank you for making Indian law accessible!`;
+
+            if (isPr) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: welcomeMessage
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                body: welcomeMessage
+              });
+            }

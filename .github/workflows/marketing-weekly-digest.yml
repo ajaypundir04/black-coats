@@ -1,0 +1,86 @@
+name: "Marketing: Weekly LegalTech Digest"
+
+on:
+  schedule:
+    # Runs every Monday at 09:00 UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  weekly_digest:
+    name: Generate Weekly Marketing Digest
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      discussions: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gather Metrics & Commit Highlights
+        id: digest
+        run: |
+          SINCE_DATE=$(date -d '7 days ago' '+%Y-%m-%d')
+          COMMITS=$(git log --since="$SINCE_DATE" --oneline | head -n 10)
+          COMMIT_COUNT=$(git log --since="$SINCE_DATE" --oneline | wc -l)
+          TODAY=$(date '+%B %d, %Y')
+          
+          echo "since=$SINCE_DATE" >> $GITHUB_OUTPUT
+          echo "today=$TODAY" >> $GITHUB_OUTPUT
+          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+
+          cat << 'EOF' > generate_body.py
+          import os, subprocess
+
+          since = os.environ.get('SINCE_DATE', '7 days ago')
+          today = os.environ.get('TODAY', 'Today')
+          
+          git_log = subprocess.getoutput(f"git log --since='{since}' --pretty=format:'- %s (%h)'")
+          if not git_log.strip():
+              git_log = "- Continuous optimization and documentation enhancements."
+
+          body = f"""# ⚖️ Black-Coat Weekly LegalTech Digest ({today})
+
+          Welcome to this week's progress update on **Black-Coat**, the zero-cost, hallucination-resistant Indian Legal AI assistant!
+
+          ### 🌟 Highlights & Shipped Features
+          {git_log}
+
+          ### 📊 Key Technical Pillars
+          - **Statute Grounding:** Indian Penal Code & Bharatiya Nyaya Sanhita (BNS 2023) section indexing.
+          - **Zero Hallucination Gate:** Responses are hard-gated by pgvector HNSW + FTS hybrid retrieval.
+          - **Free Tier Resilience:** Triple-redundant provider fallback (Gemini Free → Groq → Local Ollama).
+          - **Safety First:** Emergency legal aid helplines (NALSA 15100, Emergency 112) automatically connected during urgent queries.
+
+          ### 📣 Social Share Snippet (Copy & Paste)
+          > *"Curious about building production RAG with Spring Boot 4, Java 25 & pgvector with ZERO cloud bills? Check out Black-Coat: https://github.com/{os.environ.get('GITHUB_REPOSITORY', 'ajaypundir04/black-coats')} ⚖️"*
+
+          ---
+          *Automated by Black-Coat Marketing Operations.*
+          """
+
+          with open('digest_content.md', 'w') as f:
+              f.write(body)
+          EOF
+
+          python3 generate_body.py
+
+      - name: Create Weekly Digest Issue for Maintainer Review
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const content = fs.readFileSync('digest_content.md', 'utf8');
+            const today = '${{ steps.digest.outputs.today }}';
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📢 Marketing Digest: Week of ${today}`,
+              body: content,
+              labels: ['marketing', 'documentation', 'community']
+            });

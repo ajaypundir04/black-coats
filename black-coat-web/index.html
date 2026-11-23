@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Black-Coat | Grounded Indian Legal AI Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div id="app" class="app-layout">
+    
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="navbar-brand">
+        <span class="brand-icon">⚖️</span>
+        <div class="brand-title">
+          <h1>Black-Coat</h1>
+          <span class="brand-tag">Indian Legal Intelligence</span>
+        </div>
+      </div>
+
+      <!-- Health Ping & Server Status Indicator -->
+      <div id="server-status" class="server-status status-waking" title="Cold start detector">
+        <span class="status-dot"></span>
+        <span id="status-text" class="status-label">Checking Server...</span>
+      </div>
+
+      <div class="navbar-actions">
+        <!-- Language Switcher -->
+        <div class="lang-selector">
+          <select id="lang-select" aria-label="Select Language">
+            <option value="en">English (India)</option>
+            <option value="hi">हिन्दी (Hindi)</option>
+            <option value="ta">தமிழ் (Tamil)</option>
+            <option value="te">తెలుగు (Telugu)</option>
+            <option value="bn">বাংলা (Bengali)</option>
+          </select>
+        </div>
+
+        <!-- Quota Pill -->
+        <div id="quota-badge" class="quota-badge" title="Daily Free Query Quota">
+          <span class="quota-icon">⚡</span>
+          <span id="quota-display">-- / 10 queries</span>
+        </div>
+
+        <!-- User Profile / Auth Toggle -->
+        <div id="auth-nav-container">
+          <button id="btn-open-auth" class="btn btn-secondary">Sign In / Register</button>
+          <div id="user-menu" class="user-menu hidden">
+            <span id="user-display-name" class="user-name">Advocate</span>
+            <button id="btn-logout" class="btn btn-sm btn-ghost" title="Logout">🚪</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Statutory Disclaimer Banner -->
+    <div class="disclaimer-banner">
+      <span class="disclaimer-icon">ℹ️</span>
+      <p>
+        <strong>Legal Education Notice:</strong> Black-Coat provides statutory information grounded in India Code (BNS, BNSS, BSA, IPC) and does not constitute formal legal counsel. For urgent aid, contact NALSA at <strong>15100</strong> or dial <strong>112</strong>.
+      </p>
+    </div>
+
+    <!-- Main Chat Container -->
+    <main class="chat-container">
+      <div id="chat-messages" class="chat-messages">
+        
+        <!-- Welcome Hero View (Shown when no messages) -->
+        <div id="chat-welcome" class="chat-welcome">
+          <div class="welcome-badge">100% Free & Open Source</div>
+          <h2>Grounded Indian Legal Counsel</h2>
+          <p>Ask legal questions in English or Indian languages. Every answer is strictly verified against Indian statutory provisions with zero hallucination.</p>
+          
+          <div class="prompt-chips-label">Try asking:</div>
+          <div class="prompt-chips">
+            <button class="chip" data-prompt="What is the definition and punishment for theft under Bharatiya Nyaya Sanhita?">
+              ⚖️ What is the punishment for theft under BNS?
+            </button>
+            <button class="chip" data-prompt="What is the legal difference between murder and culpable homicide under BNS 2023?">
+              📖 Murder vs Culpable Homicide under BNS
+            </button>
+            <button class="chip" data-prompt="What are a citizen's legal rights if detained or arrested by police?">
+              🛡️ Legal rights during police arrest
+            </button>
+            <button class="chip" data-prompt="What constitutes cheating under Section 318 of BNS?">
+              💼 Cheating under BNS Section 318
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Emergency Help Box (Appears when urgent situation detected) -->
+      <div id="emergency-box" class="emergency-box hidden">
+        <div class="emergency-header">
+          <span>🚨 Emergency Legal & Safety Services (India)</span>
+          <button id="btn-close-emergency" class="btn-icon">✕</button>
+        </div>
+        <div class="emergency-body">
+          <div class="emergency-item"><strong>National Emergency:</strong> <a href="tel:112">Dial 112</a></div>
+          <div class="emergency-item"><strong>NALSA 24x7 Free Legal Aid:</strong> <a href="tel:15100">Dial 15100</a></div>
+          <div class="emergency-item"><strong>Women Helpline (NCW):</strong> <a href="tel:1091">Dial 1091</a></div>
+        </div>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="chat-input-wrapper">
+        <form id="chat-form" class="chat-form">
+          <div class="input-controls">
+            <!-- Voice Dictation Button (Web Speech API) -->
+            <button type="button" id="btn-mic" class="btn-icon btn-mic" title="Voice Input (Speech-to-Text)">
+              <span id="mic-icon">🎙️</span>
+            </button>
+            
+            <textarea 
+              id="chat-input" 
+              placeholder="Ask an Indian legal question (e.g. BNS section, bail rules, rights)..." 
+              rows="1" 
+              required
+            ></textarea>
+
+            <button type="submit" id="btn-send" class="btn btn-primary btn-send" title="Send question">
+              <span class="send-arrow">➔</span>
+            </button>
+          </div>
+        </form>
+        <div class="input-footer">
+          <span>Press Enter to send, Shift+Enter for new line</span>
+          <span id="model-chain-info">Chain: Gemini Flash → Groq → Ollama</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Auth Modal (Login / Register) -->
+    <div id="auth-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <button id="btn-close-auth" class="modal-close">✕</button>
+        
+        <div class="modal-tabs">
+          <button id="tab-login" class="tab-btn active">Sign In</button>
+          <button id="tab-register" class="tab-btn">Create Account</button>
+        </div>
+
+        <div id="auth-error" class="alert alert-error hidden"></div>
+
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form">
+          <div class="form-group">
+            <label for="login-email">Email Address</label>
+            <input type="email" id="login-email" required placeholder="advocate@example.com">
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" required placeholder="••••••••">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" class="auth-form hidden">
+          <div class="form-group">
+            <label for="reg-name">Full Name / Title</label>
+            <input type="text" id="reg-name" placeholder="Advocate Rajesh Kumar">
+          </div>
+          <div class="form-group">
+            <label for="reg-email">Email Address</label>
+            <input type="email" id="reg-email" required placeholder="advocate@example.com">
+          </div>
+          <div class="form-group">
+            <label for="reg-password">Password (min 8 chars)</label>
+            <input type="password" id="reg-password" minlength="8" required placeholder="••••••••">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Register Free Account</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Citation Expansion Drawer/Modal -->
+    <div id="citation-modal" class="modal-overlay hidden">
+      <div class="modal-card citation-card">
+        <button id="btn-close-citation" class="modal-close">✕</button>
+        <div class="citation-header">
+          <span id="cit-tag" class="citation-tag">[S1]</span>
+          <h3 id="cit-title">Statute Title</h3>
+        </div>
+        <div class="citation-meta">
+          <span id="cit-act">Act: BNS 2023</span>
+          <span id="cit-section">Section: 303</span>
+        </div>
+        <div class="citation-content">
+          <h4>Statutory Text:</h4>
+          <p id="cit-text">Statute text...</p>
+        </div>
+        <div class="citation-footer">
+          <a id="cit-link" href="https://www.indiacode.nic.in" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary">
+            View on India Code ↗
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

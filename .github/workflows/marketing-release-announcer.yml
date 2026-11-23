@@ -1,0 +1,102 @@
+name: "Marketing: Release Announcer & Social Broadcast"
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release Tag (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+jobs:
+  broadcast:
+    name: Generate Social Copy & Broadcast Webhooks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Extract Release Notes & Format Marketing Copy
+        id: marketing_copy
+        run: |
+          TAG="${{ github.event.release.tag_name || github.event.inputs.tag_name }}"
+          RELEASE_NAME="${{ github.event.release.name || github.event.inputs.tag_name }}"
+          REPO_URL="https://github.com/${{ github.repository }}"
+          
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          
+          # Generate Twitter / X Copy (Thread Hook)
+          TWITTER_COPY="⚖️ Introducing Black-Coat ($TAG): The 100% Free, Hallucination-Resistant Indian Legal AI.
+
+          🔍 Powered by Spring Boot 4 + Java 25, pgvector hybrid search, and multi-model free tier fallback (Gemini → Groq → Ollama).
+          
+          ✨ Section-verified citations for BNS, BNSS, and Indian statutes.
+
+          ⭐ Star the open-source repo: $REPO_URL"
+          
+          # Generate LinkedIn Copy
+          LINKEDIN_COPY="🚀 Excited to announce Black-Coat $TAG — Open-source Indian Legal Intelligence with Zero Running Cost!
+          
+          Why did we build this?
+          In legal questions, hallucinating a section is unacceptable. Black-Coat is engineered from the ground up to prioritize accuracy over guesswork:
+          - Hybrid Retrieval: Reciprocal Rank Fusion of pgvector HNSW embeddings + PostgreSQL Full-Text Search.
+          - Citation Verification: Every [S#] section reference is mapped to real statutory laws before response completion.
+          - Multi-tier Free LLM Adapter: Seamless failover between Gemini Free, Groq, and self-hosted Ollama.
+          - Full DPDP Act 2023 compliance with data export & deletion.
+
+          Explore the project, run it locally with docker-compose, or star the repo:
+          $REPO_URL"
+
+          # Write artifacts for step review
+          mkdir -p marketing-output
+          echo "$TWITTER_COPY" > marketing-output/twitter_thread.txt
+          echo "$LINKEDIN_COPY" > marketing-output/linkedin_post.txt
+
+          echo "Generated social copy for $TAG"
+
+      - name: Notify Discord Community & Marketing Webhook
+        if: env.DISCORD_WEBHOOK_URL != ''
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_MARKETING_WEBHOOK }}
+        run: |
+          TAG="${{ steps.marketing_copy.outputs.tag }}"
+          REPO_URL="https://github.com/${{ github.repository }}"
+          
+          PAYLOAD=$(cat <<EOF
+          {
+            "username": "Black-Coat Marketing Bot",
+            "avatar_url": "https://raw.githubusercontent.com/ajaypundir04/black-coats/main/docs/assets/logo.png",
+            "content": "📢 **New Release Alert! Black-Coat \`${TAG}\` is live!** ⚖️",
+            "embeds": [
+              {
+                "title": "Black-Coat ${TAG} Released",
+                "description": "Zero-cost, Hallucination-resistant Indian Legal AI assistant grounded in verified statutes (BNS, BNSS, BSA).",
+                "url": "${REPO_URL}/releases/tag/${TAG}",
+                "color": 3447003,
+                "fields": [
+                  {
+                    "name": "Architecture",
+                    "value": "Spring Boot 4, Java 25, pgvector, Reciprocal Rank Fusion",
+                    "inline": false
+                  },
+                  {
+                    "name": "GitHub Repo",
+                    "value": "[Star on GitHub](${REPO_URL})",
+                    "inline": true
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          )
+          
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK_URL" || echo "Webhook delivery skipped."
+
+      - name: Upload Marketing Copy Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-marketing-copy-${{ steps.marketing_copy.outputs.tag }}
+          path: marketing-output/
