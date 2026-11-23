@@ -86,10 +86,9 @@ If you prefer configuring services individually:
    - **Name:** `black-coat-api`
    - **Region:** `Oregon` (or matching your database region)
    - **Branch:** `main`
-   - **Root Directory:** *(leave blank)*
+   - **Root Directory:** *(leave blank — defaults to repository root)*
    - **Runtime:** `Docker`
-   - **Dockerfile Path:** `./black-coat-api/Dockerfile`
-   - **Docker Build Context:** `./black-coat-api`
+   - **Dockerfile Path:** `Dockerfile` (or `./black-coat-api/Dockerfile`)
    - **Instance Type:** `Free`
 4. Expand **Advanced** and set:
    - **Health Check Path:** `/actuator/health`
