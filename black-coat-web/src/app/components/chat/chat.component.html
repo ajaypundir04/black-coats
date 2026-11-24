@@ -59,6 +59,9 @@
 
   <!-- Chat Input Bar -->
   <div class="chat-input-wrapper">
+    @if (inputError(); as err) {
+      <div class="input-error-banner">{{ err }}</div>
+    }
     <form (ngSubmit)="onSubmit()" class="chat-form">
       <div class="input-controls">
         <button 
@@ -73,8 +76,10 @@
         <textarea 
           #chatInputEl
           [(ngModel)]="questionText"
+          (input)="onInputChange()"
           name="question"
           (keydown)="onKeyDown($event)"
+          maxlength="2000"
           placeholder="Ask an Indian legal question (e.g. BNS section, bail rules, rights)..." 
           rows="1" 
           required
@@ -82,15 +87,18 @@
 
         <button 
           type="submit" 
-          [disabled]="chatService.isStreaming() || !questionText.trim()"
+          [disabled]="chatService.isStreaming() || questionText.trim().length < 3 || questionText.length > 2000"
           class="btn btn-primary btn-send" 
-          title="Send question">
+          title="Send question (min 3 chars)">
           <span class="send-arrow">➔</span>
         </button>
       </div>
     </form>
     <div class="input-footer">
       <span>Press Enter to send, Shift+Enter for new line</span>
+      <span class="char-counter" [class.warning]="questionText.length > 1800" [class.danger]="questionText.length >= 2000">
+        {{ questionText.length }} / 2000
+      </span>
       <span class="model-chain-info">Chain: Gemini Flash → Groq → Ollama</span>
     </div>
   </div>

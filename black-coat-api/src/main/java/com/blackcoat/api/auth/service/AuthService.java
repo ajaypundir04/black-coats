@@ -42,16 +42,24 @@ public class AuthService {
 
     @Transactional
     public AuthDtos.AuthResponse register(AuthDtos.RegisterRequest req) {
-        if (userRepository.existsByEmailAndDeletedAtIsNull(req.email().toLowerCase().trim())) {
+        String normalizedEmail = req.email().toLowerCase().trim();
+        if (userRepository.existsByEmailAndDeletedAtIsNull(normalizedEmail)) {
             throw new IllegalArgumentException("Email is already registered");
+        }
+
+        String sanitizedName = "Advocate";
+        if (req.displayName() != null) {
+            sanitizedName = req.displayName().replaceAll("<[^>]*>", "").trim();
+            if (sanitizedName.isEmpty()) sanitizedName = "Advocate";
+            if (sanitizedName.length() > 80) sanitizedName = sanitizedName.substring(0, 80);
         }
 
         String hashedPassword = passwordEncoder.encode(req.password());
         User user = new User(
-            req.email().toLowerCase().trim(),
+            normalizedEmail,
             hashedPassword,
-            req.displayName() != null ? req.displayName().trim() : "Advocate",
-            req.langPref() != null ? req.langPref() : "en"
+            sanitizedName,
+            req.langPref() != null && !req.langPref().isBlank() ? req.langPref().trim() : "en"
         );
         user = userRepository.save(user);
 

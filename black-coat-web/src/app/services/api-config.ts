@@ -26,16 +26,19 @@ export function getApiHost(): string {
     return 'http://localhost:8080';
   }
 
-  // 4. Render deployment: if host is <name>-web.onrender.com -> API is <name>-api.onrender.com
+  // 4. Render deployment
   if (hostname.includes('.onrender.com')) {
-    if (hostname.includes('-web.')) {
-      return `https://${hostname.replace('-web.', '-api.')}`;
+    if (hostname === 'black-coats.onrender.com') {
+      return 'https://black-coats.onrender.com';
     }
-    return 'https://black-coat-api.onrender.com';
+    if (hostname.includes('-web.')) {
+      return `https://${hostname.replace('-web.', '.')}`;
+    }
+    return 'https://black-coats.onrender.com';
   }
 
   // 5. Default production backend for GitHub Pages or other static hosting
-  return 'https://black-coat-api.onrender.com';
+  return 'https://black-coats.onrender.com';
 }
 
 export function setApiHost(url: string | null): void {
@@ -84,7 +87,11 @@ export async function safeFetchJson<T = any>(url: string, init: RequestInit = {}
         errorMsg = `Server error HTTP ${res.status} (${res.statusText || 'Request failed'})`;
       }
     }
-    throw new Error(errorMsg);
+    const err = new Error(errorMsg) as any;
+    if (data?.fieldErrors) {
+      err.fieldErrors = data.fieldErrors;
+    }
+    throw err;
   }
 
   if (!data) {

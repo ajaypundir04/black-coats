@@ -5,14 +5,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.validation.ConstraintViolationException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -23,15 +27,56 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
-            .map(FieldError::getDefaultMessage)
-            .collect(Collectors.joining(", "));
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            // Keep first error message for each field if multiple constraints fail
+            fieldErrors.putIfAbsent(fieldError.getField(), fieldError.getDefaultMessage());
+        }
 
-        log.warn("Validation failed: {}", errorMessage);
-        Map<String, Object> body = new HashMap<>();
-        body.put("error", errorMessage.isEmpty() ? "Invalid request parameters" : errorMessage);
+        String summary = fieldErrors.values().stream().findFirst().orElse("Validation failed");
+
+        log.warn("Validation failed for fields: {}", fieldErrors);
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("error", summary);
+        body.put("fieldErrors", fieldErrors);
         body.put("status", HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        ex.getConstraintViolations().forEach(violation -> {
+            String property = violation.getPropertyPath().toString();
+            fieldErrors.putIfAbsent(property, violation.getMessage());
+        });
+
+        String summary = fieldErrors.values().stream().findFirst().orElse("Constraint violation");
+        log.warn("Constraint violation: {}", fieldErrors);
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("error", summary);
+        body.put("fieldErrors", fieldErrors);
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleMalformedJson(HttpMessageNotReadableException ex) {
+        log.warn("Malformed JSON request body: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(Map.of(
+            "error", "Malformed request body. Please ensure valid JSON formatting.",
+            "status", HttpStatus.BAD_REQUEST.value()
+        ));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, Object>> handleMissingParam(MissingServletRequestParameterException ex) {
+        log.warn("Missing parameter: {}", ex.getParameterName());
+        return ResponseEntity.badRequest().body(Map.of(
+            "error", "Required request parameter '" + ex.getParameterName() + "' is missing",
+            "status", HttpStatus.BAD_REQUEST.value()
+        ));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

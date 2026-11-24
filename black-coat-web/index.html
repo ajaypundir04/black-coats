@@ -71,7 +71,7 @@
         
         <!-- Welcome Hero View (Shown when no messages) -->
         <div id="chat-welcome" class="chat-welcome">
-          <div class="welcome-badge">100% Free & Open Source</div>
+          <div class="welcome-badge">Grounded Legal AI • Open Source</div>
           <h2>Grounded Indian Legal Counsel</h2>
           <p>Ask legal questions in English or Indian languages. Every answer is strictly verified against Indian statutory provisions with zero hallucination.</p>
           
@@ -109,6 +109,7 @@
 
       <!-- Chat Input Area -->
       <div class="chat-input-wrapper">
+        <div id="chat-error-banner" class="input-error-banner hidden"></div>
         <form id="chat-form" class="chat-form">
           <div class="input-controls">
             <!-- Voice Dictation Button (Web Speech API) -->
@@ -118,18 +119,20 @@
             
             <textarea 
               id="chat-input" 
+              maxlength="2000"
               placeholder="Ask an Indian legal question (e.g. BNS section, bail rules, rights)..." 
               rows="1" 
               required
             ></textarea>
 
-            <button type="submit" id="btn-send" class="btn btn-primary btn-send" title="Send question">
+            <button type="submit" id="btn-send" class="btn btn-primary btn-send" title="Send question (min 3 chars)" disabled>
               <span class="send-arrow">➔</span>
             </button>
           </div>
         </form>
         <div class="input-footer">
           <span>Press Enter to send, Shift+Enter for new line</span>
+          <span id="char-counter" class="char-counter">0 / 2000</span>
           <span id="model-chain-info">Chain: Gemini Flash → Groq → Ollama</span>
         </div>
       </div>
@@ -148,33 +151,47 @@
         <div id="auth-error" class="alert alert-error hidden"></div>
 
         <!-- Login Form -->
-        <form id="login-form" class="auth-form">
+        <form id="login-form" class="auth-form" novalidate>
           <div class="form-group">
-            <label for="login-email">Email Address</label>
+            <label for="login-email">Email Address <span class="required-star">*</span></label>
             <input type="email" id="login-email" required placeholder="advocate@example.com">
+            <span class="field-error hidden" id="login-email-error"></span>
           </div>
           <div class="form-group">
-            <label for="login-password">Password</label>
+            <label for="login-password">Password <span class="required-star">*</span></label>
             <input type="password" id="login-password" required placeholder="••••••••">
+            <span class="field-error hidden" id="login-password-error"></span>
           </div>
-          <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+          <button type="submit" id="btn-submit-login" class="btn btn-primary btn-block">Sign In</button>
         </form>
 
         <!-- Register Form -->
-        <form id="register-form" class="auth-form hidden">
+        <form id="register-form" class="auth-form hidden" novalidate>
           <div class="form-group">
-            <label for="reg-name">Full Name / Title</label>
-            <input type="text" id="reg-name" placeholder="Advocate Rajesh Kumar">
+            <label for="reg-name">Full Name / Title (Optional)</label>
+            <input type="text" id="reg-name" maxlength="80" placeholder="Advocate Rajesh Kumar">
+            <span class="field-error hidden" id="reg-name-error"></span>
           </div>
           <div class="form-group">
-            <label for="reg-email">Email Address</label>
+            <label for="reg-email">Email Address <span class="required-star">*</span></label>
             <input type="email" id="reg-email" required placeholder="advocate@example.com">
+            <span class="field-error hidden" id="reg-email-error"></span>
           </div>
           <div class="form-group">
-            <label for="reg-password">Password (min 8 chars)</label>
-            <input type="password" id="reg-password" minlength="8" required placeholder="••••••••">
+            <label for="reg-password">Password <span class="required-star">*</span></label>
+            <input type="password" id="reg-password" maxlength="72" required placeholder="••••••••">
+            <span class="field-error hidden" id="reg-password-error"></span>
+            <div class="password-hints">
+              <span id="hint-len" class="hint-item">○ 8–72 characters</span>
+              <span id="hint-req" class="hint-item">○ 1 letter & 1 number</span>
+            </div>
           </div>
-          <button type="submit" class="btn btn-primary btn-block">Register Free Account</button>
+          <div class="form-group">
+            <label for="reg-confirm">Confirm Password <span class="required-star">*</span></label>
+            <input type="password" id="reg-confirm" maxlength="72" required placeholder="••••••••">
+            <span class="field-error hidden" id="reg-confirm-error"></span>
+          </div>
+          <button type="submit" id="btn-submit-register" class="btn btn-primary btn-block">Create Account</button>
         </form>
       </div>
     </div>

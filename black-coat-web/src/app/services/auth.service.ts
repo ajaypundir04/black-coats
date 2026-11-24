@@ -22,9 +22,11 @@ export class AuthService {
   readonly isAuthModalOpen = signal<boolean>(false);
   readonly authModalTab = signal<'login' | 'register'>('login');
   readonly authError = signal<string | null>(null);
+  readonly fieldErrors = signal<Record<string, string>>({});
 
   async login(credentials: LoginRequest): Promise<void> {
     this.authError.set(null);
+    this.fieldErrors.set({});
     try {
       const data = await safeFetchJson<AuthResponse>(`${this.apiBase}/login`, {
         method: 'POST',
@@ -36,12 +38,16 @@ export class AuthService {
       this.isAuthModalOpen.set(false);
     } catch (err: any) {
       this.authError.set(err.message || 'Login failed');
+      if (err.fieldErrors) {
+        this.fieldErrors.set(err.fieldErrors);
+      }
       throw err;
     }
   }
 
   async register(req: RegisterRequest): Promise<void> {
     this.authError.set(null);
+    this.fieldErrors.set({});
     try {
       const data = await safeFetchJson<AuthResponse>(`${this.apiBase}/register`, {
         method: 'POST',
@@ -53,6 +59,9 @@ export class AuthService {
       this.isAuthModalOpen.set(false);
     } catch (err: any) {
       this.authError.set(err.message || 'Registration failed');
+      if (err.fieldErrors) {
+        this.fieldErrors.set(err.fieldErrors);
+      }
       throw err;
     }
   }
@@ -68,6 +77,7 @@ export class AuthService {
   openAuthModal(tab: 'login' | 'register' = 'login'): void {
     this.authModalTab.set(tab);
     this.authError.set(null);
+    this.fieldErrors.set({});
     this.isAuthModalOpen.set(true);
   }
 

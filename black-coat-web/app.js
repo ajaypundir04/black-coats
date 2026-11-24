@@ -20,12 +20,15 @@
       return 'http://localhost:8080';
     }
     if (hostname.includes('.onrender.com')) {
-      if (hostname.includes('-web.')) {
-        return `https://${hostname.replace('-web.', '-api.')}`;
+      if (hostname === 'black-coats.onrender.com') {
+        return 'https://black-coats.onrender.com';
       }
-      return 'https://black-coat-api.onrender.com';
+      if (hostname.includes('-web.')) {
+        return `https://${hostname.replace('-web.', '.')}`;
+      }
+      return 'https://black-coats.onrender.com';
     }
-    return 'https://black-coat-api.onrender.com';
+    return 'https://black-coats.onrender.com';
   }
 
   function getApiBase() {
@@ -62,7 +65,11 @@
           errorMsg = `Server error HTTP ${res.status} (${res.statusText || 'Request failed'})`;
         }
       }
-      throw new Error(errorMsg);
+      const err = new Error(errorMsg);
+      if (data && data.fieldErrors) {
+        err.fieldErrors = data.fieldErrors;
+      }
+      throw err;
     }
 
     if (!data) {
@@ -178,17 +185,77 @@
     quotaDisplay.textContent = `${state.dailyQuotaRemaining} / 10 queries`;
   }
 
+  const EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+  function setFieldError(fieldId, errorMsg) {
+    const inputEl = document.getElementById(fieldId);
+    const errorEl = document.getElementById(`${fieldId}-error`);
+    if (inputEl) inputEl.classList.add('is-invalid');
+    if (errorEl) {
+      errorEl.textContent = errorMsg;
+      errorEl.classList.remove('hidden');
+    }
+  }
+
+  function clearFieldError(fieldId) {
+    const inputEl = document.getElementById(fieldId);
+    const errorEl = document.getElementById(`${fieldId}-error`);
+    if (inputEl) inputEl.classList.remove('is-invalid');
+    if (errorEl) {
+      errorEl.textContent = '';
+      errorEl.classList.add('hidden');
+    }
+  }
+
+  function clearAllFieldErrors(formId) {
+    authError.classList.add('hidden');
+    const form = document.getElementById(formId);
+    if (!form) return;
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.field-error').forEach(el => {
+      el.textContent = '';
+      el.classList.add('hidden');
+    });
+  }
+
+  function updatePasswordHints(password) {
+    const hintLen = document.getElementById('hint-len');
+    const hintReq = document.getElementById('hint-req');
+    const hasLen = password.length >= 8 && password.length <= 72;
+    const hasReq = /[a-zA-Z]/.test(password) && /\d/.test(password);
+
+    if (hintLen) {
+      hintLen.textContent = `${hasLen ? '✓' : '○'} 8–72 characters`;
+      hintLen.classList.toggle('valid', hasLen);
+    }
+    if (hintReq) {
+      hintReq.textContent = `${hasReq ? '✓' : '○'} 1 letter & 1 number`;
+      hintReq.classList.toggle('valid', hasReq);
+    }
+  }
+
   async function handleLogin(e) {
     e.preventDefault();
-    authError.classList.add('hidden');
+    clearAllFieldErrors('login-form');
+
     const email = (document.getElementById('login-email').value || '').trim();
     const password = document.getElementById('login-password').value || '';
 
-    if (!email || !password) {
-      authError.textContent = 'Please enter email and password.';
-      authError.classList.remove('hidden');
-      return;
+    let hasError = false;
+    if (!email) {
+      setFieldError('login-email', 'Email address is required');
+      hasError = true;
+    } else if (!EMAIL_REGEX.test(email)) {
+      setFieldError('login-email', 'Please enter a valid email address');
+      hasError = true;
     }
+
+    if (!password) {
+      setFieldError('login-password', 'Password is required');
+      hasError = true;
+    }
+
+    if (hasError) return;
 
     try {
       const data = await safeFetchJson(`${getApiBase()}/auth/login`, {
@@ -200,6 +267,10 @@
       setSession(data);
       authModal.classList.add('hidden');
     } catch (err) {
+      if (err.fieldErrors) {
+        if (err.fieldErrors.email) setFieldError('login-email', err.fieldErrors.email);
+        if (err.fieldErrors.password) setFieldError('login-password', err.fieldErrors.password);
+      }
       authError.textContent = err.message || 'Login failed';
       authError.classList.remove('hidden');
     }
@@ -207,22 +278,47 @@
 
   async function handleRegister(e) {
     e.preventDefault();
-    authError.classList.add('hidden');
+    clearAllFieldErrors('register-form');
+
     const displayName = (document.getElementById('reg-name').value || '').trim();
     const email = (document.getElementById('reg-email').value || '').trim();
     const password = document.getElementById('reg-password').value || '';
+    const confirm = (document.getElementById('reg-confirm').value || '');
+
+    let hasError = false;
+    if (displayName && displayName.length > 80) {
+      setFieldError('reg-name', 'Name cannot exceed 80 characters');
+      hasError = true;
+    }
 
     if (!email) {
-      authError.textContent = 'Please enter a valid email address.';
-      authError.classList.remove('hidden');
-      return;
+      setFieldError('reg-email', 'Email address is required');
+      hasError = true;
+    } else if (!EMAIL_REGEX.test(email)) {
+      setFieldError('reg-email', 'Please enter a valid email address (e.g. advocate@example.com)');
+      hasError = true;
     }
 
-    if (password.length < 8) {
-      authError.textContent = 'Password must be at least 8 characters long.';
-      authError.classList.remove('hidden');
-      return;
+    if (!password) {
+      setFieldError('reg-password', 'Password is required');
+      hasError = true;
+    } else if (password.length < 8) {
+      setFieldError('reg-password', 'Password must be at least 8 characters');
+      hasError = true;
+    } else if (password.length > 72) {
+      setFieldError('reg-password', 'Password cannot exceed 72 characters');
+      hasError = true;
+    } else if (!/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
+      setFieldError('reg-password', 'Password must contain at least 1 letter and 1 number');
+      hasError = true;
     }
+
+    if (confirm !== password) {
+      setFieldError('reg-confirm', 'Passwords do not match');
+      hasError = true;
+    }
+
+    if (hasError) return;
 
     try {
       const data = await safeFetchJson(`${getApiBase()}/auth/register`, {
@@ -234,6 +330,11 @@
       setSession(data);
       authModal.classList.add('hidden');
     } catch (err) {
+      if (err.fieldErrors) {
+        if (err.fieldErrors.displayName) setFieldError('reg-name', err.fieldErrors.displayName);
+        if (err.fieldErrors.email) setFieldError('reg-email', err.fieldErrors.email);
+        if (err.fieldErrors.password) setFieldError('reg-password', err.fieldErrors.password);
+      }
       authError.textContent = err.message || 'Registration failed';
       authError.classList.remove('hidden');
     }
@@ -263,16 +364,43 @@
   // 3. Streaming Chat Execution (fetch + Stream Reader)
   // --------------------------------------------------------------------------
   async function submitQuestion(questionText) {
-    if (!questionText.trim() || state.isStreaming) return;
+    const chatErrorBanner = document.getElementById('chat-error-banner');
+    if (chatErrorBanner) chatErrorBanner.classList.add('hidden');
+
+    const trimmed = (questionText || '').trim();
+    if (!trimmed) {
+      if (chatErrorBanner) {
+        chatErrorBanner.textContent = 'Please enter a legal query';
+        chatErrorBanner.classList.remove('hidden');
+      }
+      return;
+    }
+    if (trimmed.length < 3) {
+      if (chatErrorBanner) {
+        chatErrorBanner.textContent = 'Question must be at least 3 characters long';
+        chatErrorBanner.classList.remove('hidden');
+      }
+      return;
+    }
+    if (trimmed.length > 2000) {
+      if (chatErrorBanner) {
+        chatErrorBanner.textContent = 'Question cannot exceed 2000 characters';
+        chatErrorBanner.classList.remove('hidden');
+      }
+      return;
+    }
+    if (state.isStreaming) return;
 
     if (chatWelcome) {
       chatWelcome.style.display = 'none';
     }
 
     // Append User Message
-    appendMessage('user', questionText);
+    appendMessage('user', trimmed);
     chatInput.value = '';
     chatInput.style.height = 'auto';
+    const charCounter = document.getElementById('char-counter');
+    if (charCounter) charCounter.textContent = '0 / 2000';
 
     // Prepare Assistant Message Placeholder
     const assistantRow = appendMessage('assistant', '');
@@ -293,7 +421,7 @@
       const response = await fetch(`${getApiBase()}/chat/stream`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ question: questionText })
+        body: JSON.stringify({ question: trimmed })
       });
 
       if (!response.ok) {
@@ -538,11 +666,70 @@
     btnCloseCitation.onclick = () => citationModal.classList.add('hidden');
     btnCloseEmergency.onclick = () => emergencyBox.classList.add('hidden');
 
+    const charCounter = document.getElementById('char-counter');
+    const chatErrorBanner = document.getElementById('chat-error-banner');
+    const loginEmailInput = document.getElementById('login-email');
+    const loginPasswordInput = document.getElementById('login-password');
+    const regNameInput = document.getElementById('reg-name');
+    const regEmailInput = document.getElementById('reg-email');
+    const regPasswordInput = document.getElementById('reg-password');
+    const regConfirmInput = document.getElementById('reg-confirm');
+
+    // Real-time chat validation & counter
+    function updateChatValidation() {
+      const val = chatInput.value;
+      const count = val.length;
+      if (charCounter) {
+        charCounter.textContent = `${count} / 2000`;
+        charCounter.classList.toggle('warning', count > 1800 && count < 2000);
+        charCounter.classList.toggle('danger', count >= 2000);
+      }
+      if (chatErrorBanner && !chatErrorBanner.classList.contains('hidden')) {
+        chatErrorBanner.classList.add('hidden');
+      }
+      btnSend.disabled = state.isStreaming || val.trim().length < 3 || count > 2000;
+    }
+
+    // Auto-resize and validation for textarea
+    chatInput.addEventListener('input', () => {
+      chatInput.style.height = 'auto';
+      chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+      updateChatValidation();
+    });
+
+    // Real-time auth field clearing and hints
+    if (loginEmailInput) loginEmailInput.addEventListener('input', () => clearFieldError('login-email'));
+    if (loginPasswordInput) loginPasswordInput.addEventListener('input', () => clearFieldError('login-password'));
+    if (regNameInput) regNameInput.addEventListener('input', () => clearFieldError('reg-name'));
+    if (regEmailInput) regEmailInput.addEventListener('input', () => clearFieldError('reg-email'));
+    if (regPasswordInput) {
+      regPasswordInput.addEventListener('input', () => {
+        clearFieldError('reg-password');
+        updatePasswordHints(regPasswordInput.value);
+        if (regConfirmInput && regConfirmInput.value && regConfirmInput.value !== regPasswordInput.value) {
+          setFieldError('reg-confirm', 'Passwords do not match');
+        } else if (regConfirmInput && regConfirmInput.value) {
+          clearFieldError('reg-confirm');
+        }
+      });
+    }
+    if (regConfirmInput) {
+      regConfirmInput.addEventListener('input', () => {
+        if (regPasswordInput && regConfirmInput.value !== regPasswordInput.value) {
+          setFieldError('reg-confirm', 'Passwords do not match');
+        } else {
+          clearFieldError('reg-confirm');
+        }
+      });
+    }
+
     tabLogin.onclick = () => {
       tabLogin.classList.add('active');
       tabRegister.classList.remove('active');
       loginForm.classList.remove('hidden');
       registerForm.classList.add('hidden');
+      clearAllFieldErrors('login-form');
+      clearAllFieldErrors('register-form');
     };
 
     tabRegister.onclick = () => {
@@ -550,17 +737,9 @@
       tabLogin.classList.remove('active');
       registerForm.classList.remove('hidden');
       loginForm.classList.add('hidden');
+      clearAllFieldErrors('login-form');
+      clearAllFieldErrors('register-form');
     };
-
-    loginForm.addEventListener('submit', handleLogin);
-    registerForm.addEventListener('submit', handleRegister);
-    btnLogout.addEventListener('click', handleLogout);
-
-    // Auto-resize textarea
-    chatInput.addEventListener('input', () => {
-      chatInput.style.height = 'auto';
-      chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
-    });
   }
 
   document.addEventListener('DOMContentLoaded', init);

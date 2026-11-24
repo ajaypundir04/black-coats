@@ -7,13 +7,13 @@
         <button 
           class="tab-btn" 
           [class.active]="authService.authModalTab() === 'login'"
-          (click)="authService.authModalTab.set('login')">
+          (click)="switchTab('login')">
           Sign In
         </button>
         <button 
           class="tab-btn" 
           [class.active]="authService.authModalTab() === 'register'"
-          (click)="authService.authModalTab.set('register')">
+          (click)="switchTab('register')">
           Create Account
         </button>
       </div>
@@ -23,35 +23,121 @@
       }
 
       @if (authService.authModalTab() === 'login') {
-        <form (ngSubmit)="onLogin()" class="auth-form">
+        <form (ngSubmit)="onLogin()" class="auth-form" novalidate>
           <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" [(ngModel)]="loginData.email" name="email" required placeholder="advocate@example.com">
+            <label for="login-email">Email Address <span class="required-star">*</span></label>
+            <input 
+              id="login-email"
+              type="email" 
+              [(ngModel)]="loginData.email" 
+              (input)="clearFieldError('email')"
+              name="email" 
+              [class.is-invalid]="getFieldError('email')"
+              required 
+              placeholder="advocate@example.com">
+            @if (getFieldError('email'); as msg) {
+              <span class="field-error">{{ msg }}</span>
+            }
           </div>
+
           <div class="form-group">
-            <label>Password</label>
-            <input type="password" [(ngModel)]="loginData.password" name="password" required placeholder="••••••••">
+            <label for="login-password">Password <span class="required-star">*</span></label>
+            <input 
+              id="login-password"
+              type="password" 
+              [(ngModel)]="loginData.password" 
+              (input)="clearFieldError('password')"
+              name="password" 
+              [class.is-invalid]="getFieldError('password')"
+              required 
+              placeholder="••••••••">
+            @if (getFieldError('password'); as msg) {
+              <span class="field-error">{{ msg }}</span>
+            }
           </div>
+
           <button type="submit" [disabled]="isSubmitting" class="btn btn-primary btn-block">
             {{ isSubmitting ? 'Signing In...' : 'Sign In' }}
           </button>
         </form>
       } @else {
-        <form (ngSubmit)="onRegister()" class="auth-form">
+        <form (ngSubmit)="onRegister()" class="auth-form" novalidate>
           <div class="form-group">
-            <label>Full Name / Title</label>
-            <input type="text" [(ngModel)]="registerData.displayName" name="displayName" placeholder="Advocate Rajesh Kumar">
+            <label for="reg-name">Full Name / Title (Optional)</label>
+            <input 
+              id="reg-name"
+              type="text" 
+              [(ngModel)]="registerData.displayName" 
+              (input)="clearFieldError('displayName')"
+              name="displayName" 
+              maxlength="80"
+              placeholder="Advocate Rajesh Kumar">
+            @if (getFieldError('displayName'); as msg) {
+              <span class="field-error">{{ msg }}</span>
+            }
           </div>
+
           <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" [(ngModel)]="registerData.email" name="regEmail" required placeholder="advocate@example.com">
+            <label for="reg-email">Email Address <span class="required-star">*</span></label>
+            <input 
+              id="reg-email"
+              type="email" 
+              [(ngModel)]="registerData.email" 
+              (input)="clearFieldError('email')"
+              name="regEmail" 
+              [class.is-invalid]="getFieldError('email')"
+              required 
+              placeholder="advocate@example.com">
+            @if (getFieldError('email'); as msg) {
+              <span class="field-error">{{ msg }}</span>
+            }
           </div>
+
           <div class="form-group">
-            <label>Password (min 8 characters)</label>
-            <input type="password" [(ngModel)]="registerData.password" name="regPassword" minlength="8" required placeholder="••••••••">
+            <label for="reg-password">Password <span class="required-star">*</span></label>
+            <input 
+              id="reg-password"
+              type="password" 
+              [(ngModel)]="registerData.password" 
+              (input)="onPasswordInput()"
+              name="regPassword" 
+              [class.is-invalid]="getFieldError('password')"
+              maxlength="72"
+              required 
+              placeholder="••••••••">
+            @if (getFieldError('password'); as msg) {
+              <span class="field-error">{{ msg }}</span>
+            }
+
+            <!-- Password Requirements Checklist -->
+            <div class="password-hints">
+              <span class="hint-item" [class.valid]="hasMinLength()">
+                {{ hasMinLength() ? '✓' : '○' }} 8–72 characters
+              </span>
+              <span class="hint-item" [class.valid]="hasLetterAndNumber()">
+                {{ hasLetterAndNumber() ? '✓' : '○' }} 1 letter & 1 number
+              </span>
+            </div>
           </div>
+
+          <div class="form-group">
+            <label for="reg-confirm">Confirm Password <span class="required-star">*</span></label>
+            <input 
+              id="reg-confirm"
+              type="password" 
+              [(ngModel)]="confirmPassword" 
+              (input)="clearFieldError('confirmPassword')"
+              name="confirmPassword" 
+              [class.is-invalid]="getFieldError('confirmPassword')"
+              required 
+              placeholder="••••••••">
+            @if (getFieldError('confirmPassword'); as msg) {
+              <span class="field-error">{{ msg }}</span>
+            }
+          </div>
+
           <button type="submit" [disabled]="isSubmitting" class="btn btn-primary btn-block">
-            {{ isSubmitting ? 'Creating Account...' : 'Register Free Account' }}
+            {{ isSubmitting ? 'Creating Account...' : 'Create Account' }}
           </button>
         </form>
       }

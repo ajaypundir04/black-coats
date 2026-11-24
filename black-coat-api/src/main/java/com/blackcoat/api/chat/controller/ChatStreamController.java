@@ -59,7 +59,7 @@ public class ChatStreamController {
 
                 // 2. Stream answer tokens through RAG service
                 RagService.RagResponse response = ragService.streamLegalAnswer(
-                    request.question(),
+                    request.question().trim(),
                     null, // Multilingual embedding or FTS
                     token -> sendSseEvent(emitter, "token", Map.of("text", token))
                 );

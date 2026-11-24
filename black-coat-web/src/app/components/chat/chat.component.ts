@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, effect } from '@angular/core';
+import { Component, ElementRef, ViewChild, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../services/chat.service';
@@ -17,6 +17,7 @@ export class ChatComponent {
   @ViewChild('chatInputEl') chatInputEl!: ElementRef<HTMLTextAreaElement>;
 
   questionText = '';
+  readonly inputError = signal<string | null>(null);
 
   readonly promptChips = [
     { title: '⚖️ Punishment for theft under BNS', prompt: 'What is the definition and punishment for theft under Bharatiya Nyaya Sanhita?' },
@@ -45,9 +46,32 @@ export class ChatComponent {
     });
   }
 
+  onInputChange(): void {
+    if (this.inputError()) {
+      this.inputError.set(null);
+    }
+    this.adjustTextareaHeight();
+  }
+
   onSubmit(): void {
-    if (!this.questionText.trim() || this.chatService.isStreaming()) return;
-    const query = this.questionText;
+    this.inputError.set(null);
+    const trimmed = this.questionText.trim();
+    if (this.chatService.isStreaming()) return;
+
+    if (!trimmed) {
+      this.inputError.set('Please enter a legal query');
+      return;
+    }
+    if (trimmed.length < 3) {
+      this.inputError.set('Query must be at least 3 characters');
+      return;
+    }
+    if (trimmed.length > 2000) {
+      this.inputError.set('Query cannot exceed 2000 characters');
+      return;
+    }
+
+    const query = trimmed;
     this.questionText = '';
     this.adjustTextareaHeight();
     this.chatService.streamQuestion(query);

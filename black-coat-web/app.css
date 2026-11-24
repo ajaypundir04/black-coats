@@ -646,6 +646,67 @@ body {
   margin-bottom: 16px;
 }
 
+.form-group input.is-invalid {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.4);
+}
+
+.field-error {
+  display: block;
+  font-size: 11px;
+  color: #f87171;
+  margin-top: 4px;
+}
+
+.required-star {
+  color: #f87171;
+}
+
+.password-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.hint-item {
+  transition: color 0.2s;
+}
+
+.hint-item.valid {
+  color: #34d399;
+  font-weight: 500;
+}
+
+.input-error-banner {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  margin-bottom: 8px;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.char-counter {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.char-counter.warning {
+  color: #f59e0b;
+}
+
+.char-counter.danger {
+  color: #ef4444;
+  font-weight: 600;
+}
+
 /* Citation Drawer Content */
 .citation-header {
   display: flex;

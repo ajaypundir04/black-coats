@@ -113,7 +113,7 @@ If you prefer configuring services individually:
 6. Click **Create Web Service**.
 7. Render will build the container, execute Flyway migrations (`V1__init_schema.sql` and `V2__seed_bns_sample.sql`), and launch Spring Boot on port 8080.
 8. Once live, note your backend URL:  
-   `https://black-coat-api.onrender.com`
+   `https://black-coats.onrender.com`
 
 ---
 
@@ -146,7 +146,7 @@ If you prefer configuring services individually:
 ### 4.1 Verify Backend Health
 Open your backend URL in your browser:
 ```
-https://black-coat-api.onrender.com/actuator/health
+https://black-coats.onrender.com/actuator/health
 ```
 Expected response:
 ```json
@@ -154,7 +154,7 @@ Expected response:
 ```
 
 ### 4.2 Verify Database Migrations in Render Logs
-In the Render dashboard for `black-coat-api`, open **Logs** and verify:
+In the Render dashboard for `black-coats`, open **Logs** and verify:
 ```text
 Successfully applied 2 migrations to schema 'public'
 Current version of schema 'public': 2
@@ -164,7 +164,7 @@ Started BlackCoatApiApplication in 8.421 seconds
 ### 4.3 Test Streaming Chat
 In a terminal, send a test query:
 ```bash
-curl -N -X POST https://black-coat-api.onrender.com/api/v1/chat/stream \
+curl -N -X POST https://black-coats.onrender.com/api/v1/chat/stream \
   -H "Content-Type: application/json" \
   -d '{"question": "What is the penalty for theft under BNS?"}'
 ```
