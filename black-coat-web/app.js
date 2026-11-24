@@ -513,7 +513,7 @@
           break;
 
         case 'error':
-          contentEl.innerHTML = `<span style="color: #ef4444;">⚠️ [${data.code}] ${data.message}</span>`;
+          contentEl.innerHTML = `<span style="color: #ef4444;">⚠️ ${data.message || 'The legal assistant encountered an issue. Please try again.'}</span>`;
           break;
       }
     } catch {

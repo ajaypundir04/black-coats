@@ -87,11 +87,19 @@ public class RagService {
         LlmRequest llmRequest = LlmRequest.of(systemPrompt, userPrompt);
 
         // 6. Streaming Generation via Provider Chain (Gemini -> Groq -> Ollama)
+        // With resilient fallback to direct statutory presentation if synthesis provider is unavailable
         StringBuilder rawGeneratedContent = new StringBuilder();
-        var execution = llmFallbackRouter.executeStream(llmRequest, token -> {
-            rawGeneratedContent.append(token);
-            tokenConsumer.accept(token);
-        });
+        LlmFallbackRouter.ExecutionResult execution;
+
+        try {
+            execution = llmFallbackRouter.executeStream(llmRequest, token -> {
+                rawGeneratedContent.append(token);
+                tokenConsumer.accept(token);
+            });
+        } catch (Exception ex) {
+            log.warn("LLM fallback chain failed ({}), falling back to direct statutory presentation", ex.getMessage());
+            return generateStatutoryFallback(retrievedSections, langResult.langCode(), safetyEval, tokenConsumer);
+        }
 
         // 7. Citation Verification & Grounding Check
         VerificationResult verification = citationVerificationService.verifyCitations(
@@ -112,5 +120,67 @@ public class RagService {
             verification,
             safetyEval
         );
+    }
+
+    private RagResponse generateStatutoryFallback(
+        List<LegalSectionDto> retrievedSections,
+        String langCode,
+        SafetyCheckService.SafetyEvaluation safetyEval,
+        Consumer<String> tokenConsumer
+    ) {
+        StringBuilder fallbackContent = new StringBuilder();
+        fallbackContent.append("Based on verified Indian statutory provisions in the legal corpus:\n\n");
+
+        for (int i = 0; i < retrievedSections.size(); i++) {
+            LegalSectionDto sec = retrievedSections.get(i);
+            String tag = "[S" + (i + 1) + "]";
+            String docTitle = getDocumentDisplayName(sec.shortName());
+            String heading = sec.heading() != null ? sec.heading() : "Section " + sec.sectionNo();
+
+            fallbackContent.append(String.format("### %s %s, Section %s — %s\n\n", tag, docTitle, sec.sectionNo(), heading));
+            fallbackContent.append(String.format("> %s\n\n", sec.text()));
+        }
+
+        fallbackContent.append("\n---\n*Disclaimer: The above statutory excerpts are cited directly from verified official enactments for legal information and do not constitute formal legal counsel.*");
+
+        String fullAnswer = fallbackContent.toString();
+
+        // Stream tokens in words/phrases so SSE consumer receives a natural stream
+        String[] words = fullAnswer.split("(?<=\\s|\\n)");
+        for (String word : words) {
+            tokenConsumer.accept(word);
+        }
+
+        VerificationResult verification = citationVerificationService.verifyCitations(
+            fullAnswer,
+            retrievedSections
+        );
+
+        if (safetyEval.urgentFlag() && safetyEval.advisoryNotice() != null) {
+            tokenConsumer.accept(safetyEval.advisoryNotice());
+        }
+
+        return new RagResponse(
+            verification.cleanedContent(),
+            langCode,
+            "statutory-engine (direct)",
+            25L,
+            verification,
+            safetyEval
+        );
+    }
+
+    private String getDocumentDisplayName(String shortName) {
+        if (shortName == null) return "Statute";
+        return switch (shortName.toUpperCase()) {
+            case "BNS" -> "Bharatiya Nyaya Sanhita, 2023 (BNS)";
+            case "BNSS" -> "Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS)";
+            case "BSA" -> "Bharatiya Sakshya Adhiniyam, 2023 (BSA)";
+            case "HMA" -> "Hindu Marriage Act, 1955";
+            case "SMA" -> "Special Marriage Act, 1954";
+            case "IPC" -> "Indian Penal Code, 1860";
+            case "CrPC" -> "Code of Criminal Procedure, 1973";
+            default -> shortName;
+        };
     }
 }

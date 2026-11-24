@@ -144,7 +144,7 @@ export class ChatService {
           break;
 
         case 'error':
-          onToken(`⚠️ [${data.code}] ${data.message}`);
+          onToken(`⚠️ ${data.message || 'The legal assistant encountered an issue. Please try again.'}`);
           break;
       }
     } catch {

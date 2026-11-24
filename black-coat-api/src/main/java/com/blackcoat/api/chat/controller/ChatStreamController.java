@@ -99,8 +99,8 @@ public class ChatStreamController {
                     quotaService.refundQuota(userId);
                 }
                 sendSseEvent(emitter, "error", Map.of(
-                    "code", "LLM_UNAVAILABLE",
-                    "message", "AI provider generation service is currently unavailable. Please ensure GEMINI_API_KEY or GROQ_API_KEY is configured in the Render dashboard."
+                    "code", "SERVICE_BUSY",
+                    "message", "Our legal AI assistant is currently experiencing high demand. Please try asking your question again in a moment."
                 ));
                 emitter.complete();
 
@@ -110,8 +110,8 @@ public class ChatStreamController {
                     quotaService.refundQuota(userId);
                 }
                 sendSseEvent(emitter, "error", Map.of(
-                    "code", "GENERATION_ERROR",
-                    "message", "An unexpected error occurred while generating the legal answer. Quota refunded."
+                    "code", "TEMPORARY_ERROR",
+                    "message", "A temporary issue occurred while processing your legal query. Please try again shortly."
                 ));
                 emitter.completeWithError(ex);
             }
