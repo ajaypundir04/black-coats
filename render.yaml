@@ -37,6 +37,9 @@ services:
     publishDir: ./black-coat-web/dist/black-coat-web
     plan: free
     region: oregon
+    envVars:
+      - key: API_URL
+        value: "https://black-coats.onrender.com"
     headers:
       - path: /*
         name: X-Content-Type-Options

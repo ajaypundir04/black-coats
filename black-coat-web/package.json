@@ -5,8 +5,9 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --port 4200 --host 0.0.0.0",
-    "build": "ng build --configuration production",
+    "prebuild": "node set-env.js",
+    "build": "node set-env.js && ng build --configuration production",
+    "start": "node set-env.js && ng serve --port 4200 --host 0.0.0.0",
     "watch": "ng build --watch --configuration development"
   },
   "dependencies": {

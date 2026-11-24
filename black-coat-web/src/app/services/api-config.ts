@@ -9,35 +9,42 @@ export function getApiHost(): string {
     return 'http://localhost:8080';
   }
 
-  // 1. User/Runtime Override in localStorage
+  // 1. User/Runtime Override in localStorage (purges stale 'black-coat-api' references)
   const stored = localStorage.getItem('blackcoat_api_url');
   if (stored && stored.trim()) {
-    return stored.trim().replace(/\/+$/, '');
+    if (stored.includes('black-coat-api.onrender.com') || stored.includes('black-coat.onrender.com')) {
+      localStorage.removeItem('blackcoat_api_url');
+    } else {
+      return stored.trim().replace(/\/+$/, '');
+    }
   }
 
-  // 2. Global window override (injected by host)
-  if ((window as any).__BLACKCOAT_API_URL__) {
-    return String((window as any).__BLACKCOAT_API_URL__).trim().replace(/\/+$/, '');
+  // 2. Global window override (injected by set-env.js / assets/env.js from process.env.API_URL)
+  if (typeof window !== 'undefined' && (window as any).__BLACKCOAT_API_URL__) {
+    const injected = String((window as any).__BLACKCOAT_API_URL__).trim().replace(/\/+$/, '');
+    if (injected && !injected.includes('black-coat-api.onrender.com')) {
+      return injected;
+    }
   }
 
-  // 3. Local development
+  // 3. HTML Meta Tag override (<meta name="api-url" content="...">)
+  if (typeof document !== 'undefined') {
+    const metaTag = document.querySelector('meta[name="api-url"]');
+    if (metaTag) {
+      const metaUrl = metaTag.getAttribute('content');
+      if (metaUrl && metaUrl.trim() && !metaUrl.includes('black-coat-api.onrender.com')) {
+        return metaUrl.trim().replace(/\/+$/, '');
+      }
+    }
+  }
+
+  // 4. Local development
   const hostname = window.location.hostname;
   if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '') {
     return 'http://localhost:8080';
   }
 
-  // 4. Render deployment
-  if (hostname.includes('.onrender.com')) {
-    if (hostname === 'black-coats.onrender.com') {
-      return 'https://black-coats.onrender.com';
-    }
-    if (hostname.includes('-web.')) {
-      return `https://${hostname.replace('-web.', '.')}`;
-    }
-    return 'https://black-coats.onrender.com';
-  }
-
-  // 5. Default production backend for GitHub Pages or other static hosting
+  // 5. Default production backend for Render and GitHub Pages
   return 'https://black-coats.onrender.com';
 }
 
