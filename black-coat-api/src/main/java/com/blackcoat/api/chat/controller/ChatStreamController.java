@@ -2,6 +2,7 @@ package com.blackcoat.api.chat.controller;
 
 import com.blackcoat.api.chat.model.ChatStreamRequest;
 import com.blackcoat.api.chat.service.QuotaService;
+import com.blackcoat.api.common.exception.AllLlmProvidersExhaustedException;
 import com.blackcoat.api.common.exception.InsufficientLegalSourcesException;
 import com.blackcoat.api.common.exception.QuotaExceededException;
 import com.blackcoat.api.rag.service.RagService;
@@ -90,6 +91,17 @@ public class ChatStreamController {
             } catch (QuotaExceededException ex) {
                 log.warn("Quota exceeded: {}", ex.getMessage());
                 sendSseEvent(emitter, "error", Map.of("code", "QUOTA_EXCEEDED", "message", ex.getMessage()));
+                emitter.complete();
+
+            } catch (AllLlmProvidersExhaustedException ex) {
+                log.warn("All LLM providers exhausted: {}", ex.getMessage());
+                if (quotaReserved) {
+                    quotaService.refundQuota(userId);
+                }
+                sendSseEvent(emitter, "error", Map.of(
+                    "code", "LLM_UNAVAILABLE",
+                    "message", "AI provider generation service is currently unavailable. Please ensure GEMINI_API_KEY or GROQ_API_KEY is configured in the Render dashboard."
+                ));
                 emitter.complete();
 
             } catch (Exception ex) {

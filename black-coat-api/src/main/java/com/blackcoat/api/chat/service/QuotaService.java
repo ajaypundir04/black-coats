@@ -15,6 +15,8 @@ public class QuotaService {
 
     private static final Logger log = LoggerFactory.getLogger(QuotaService.class);
 
+    public static final UUID ANONYMOUS_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
     private final EntityManager entityManager;
     private final int dailyLimit;
     private final int monthlyLimit;
@@ -35,6 +37,12 @@ public class QuotaService {
      */
     @Transactional
     public void reserveQuota(UUID userId) {
+        if (ANONYMOUS_USER_ID.equals(userId)) {
+            // Anonymous guest session: permit browsing without foreign-key failure or exhaustion
+            log.debug("Permitting query for anonymous guest session: {}", userId);
+            return;
+        }
+
         String sql = "SELECT reserve_user_quota(:userId, :dailyLimit, :monthlyLimit)";
         Boolean reserved = (Boolean) entityManager.createNativeQuery(sql)
             .setParameter("userId", userId)
@@ -57,6 +65,10 @@ public class QuotaService {
      */
     @Transactional
     public void refundQuota(UUID userId) {
+        if (ANONYMOUS_USER_ID.equals(userId)) {
+            return;
+        }
+
         try {
             String sql = "SELECT refund_user_quota(:userId)";
             entityManager.createNativeQuery(sql)
