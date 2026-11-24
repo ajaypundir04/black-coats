@@ -51,21 +51,33 @@ blackcoat:
 
   # Free LLM Provider Fallback Chain: Gemini -> Groq -> Ollama
   llm:
+    gemini:
+      enabled: ${LLM_GEMINI_ENABLED:true}
+      api-key: ${GEMINI_API_KEY:}
+      model: ${LLM_GEMINI_MODEL:gemini-3.8-flash}
+      base-url: ${LLM_GEMINI_BASE_URL:https://generativelanguage.googleapis.com/v1beta}
+      timeout-ms: 15000
+    groq:
+      enabled: ${LLM_GROQ_ENABLED:true}
+      api-key: ${GROQ_API_KEY:}
+      model: ${LLM_GROQ_MODEL:qwen/qwen3.8-27b}
+      base-url: ${LLM_GROQ_BASE_URL:https://api.groq.com/openai/v1}
+      timeout-ms: 10000
     chain:
       - name: gemini
         enabled: ${LLM_GEMINI_ENABLED:true}
         api-key: ${GEMINI_API_KEY:}
-        model: gemini-1.5-flash
+        model: ${LLM_GEMINI_MODEL:gemini-3.8-flash}
         base-url: https://generativelanguage.googleapis.com/v1beta
-        timeout-ms: 8000
+        timeout-ms: 15000
       - name: groq
         enabled: ${LLM_GROQ_ENABLED:true}
         api-key: ${GROQ_API_KEY:}
-        model: llama-3.3-70b-versatile
+        model: ${LLM_GROQ_MODEL:qwen/qwen3.8-27b}
         base-url: https://api.groq.com/openai/v1
-        timeout-ms: 6000
+        timeout-ms: 10000
       - name: ollama
-        enabled: ${LLM_OLLAMA_ENABLED:true}
+        enabled: ${LLM_OLLAMA_ENABLED:false}
         model: llama3.2:3b
         base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
         timeout-ms: 12000

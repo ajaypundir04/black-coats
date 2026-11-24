@@ -36,11 +36,11 @@ public class GroqLlmClient implements LlmClient {
     private final ObjectMapper objectMapper;
 
     public GroqLlmClient(
-        @Value("${blackcoat.llm.chain[1].api-key:}") String apiKey,
-        @Value("${blackcoat.llm.chain[1].model:llama-3.3-70b-versatile}") String model,
-        @Value("${blackcoat.llm.chain[1].base-url:https://api.groq.com/openai/v1}") String baseUrl,
-        @Value("${blackcoat.llm.chain[1].enabled:true}") boolean enabled,
-        @Value("${blackcoat.llm.chain[1].timeout-ms:6000}") int timeoutMs,
+        @Value("${blackcoat.llm.groq.api-key:${GROQ_API_KEY:${blackcoat.llm.chain[1].api-key:}}}") String apiKey,
+        @Value("${blackcoat.llm.groq.model:${LLM_GROQ_MODEL:${blackcoat.llm.chain[1].model:qwen/qwen3.8-27b}}}") String model,
+        @Value("${blackcoat.llm.groq.base-url:${LLM_GROQ_BASE_URL:${blackcoat.llm.chain[1].base-url:https://api.groq.com/openai/v1}}}") String baseUrl,
+        @Value("${blackcoat.llm.groq.enabled:${LLM_GROQ_ENABLED:${blackcoat.llm.chain[1].enabled:true}}}") boolean enabled,
+        @Value("${blackcoat.llm.groq.timeout-ms:${LLM_GROQ_TIMEOUT_MS:${blackcoat.llm.chain[1].timeout-ms:10000}}}") int timeoutMs,
         ObjectMapper objectMapper
     ) {
         this.apiKey = apiKey;

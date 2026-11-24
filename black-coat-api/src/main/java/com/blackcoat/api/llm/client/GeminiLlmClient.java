@@ -36,11 +36,11 @@ public class GeminiLlmClient implements LlmClient {
     private final ObjectMapper objectMapper;
 
     public GeminiLlmClient(
-        @Value("${blackcoat.llm.chain[0].api-key:}") String apiKey,
-        @Value("${blackcoat.llm.chain[0].model:gemini-1.5-flash}") String model,
-        @Value("${blackcoat.llm.chain[0].base-url:https://generativelanguage.googleapis.com/v1beta}") String baseUrl,
-        @Value("${blackcoat.llm.chain[0].enabled:true}") boolean enabled,
-        @Value("${blackcoat.llm.chain[0].timeout-ms:8000}") int timeoutMs,
+        @Value("${blackcoat.llm.gemini.api-key:${GEMINI_API_KEY:${blackcoat.llm.chain[0].api-key:}}}") String apiKey,
+        @Value("${blackcoat.llm.gemini.model:${LLM_GEMINI_MODEL:${blackcoat.llm.chain[0].model:gemini-3.8-flash}}}") String model,
+        @Value("${blackcoat.llm.gemini.base-url:${LLM_GEMINI_BASE_URL:${blackcoat.llm.chain[0].base-url:https://generativelanguage.googleapis.com/v1beta}}}") String baseUrl,
+        @Value("${blackcoat.llm.gemini.enabled:${LLM_GEMINI_ENABLED:${blackcoat.llm.chain[0].enabled:true}}}") boolean enabled,
+        @Value("${blackcoat.llm.gemini.timeout-ms:${LLM_GEMINI_TIMEOUT_MS:${blackcoat.llm.chain[0].timeout-ms:15000}}}") int timeoutMs,
         ObjectMapper objectMapper
     ) {
         this.apiKey = apiKey;
