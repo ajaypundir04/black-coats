@@ -13,9 +13,9 @@ services:
     healthCheckPath: /actuator/health
     envVars:
       - key: SPRING_DATASOURCE_URL
-        placeholder: "jdbc:postgresql://<external-pgvector-host>:5432/<db_name>?sslmode=require"
+        placeholder: "jdbc:postgresql://aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require"
       - key: SPRING_DATASOURCE_USERNAME
-        placeholder: "postgres"
+        placeholder: "postgres.<project-ref>"
       - key: SPRING_DATASOURCE_PASSWORD
         placeholder: "your-db-password"
       - key: BLACKCOAT_JWT_SECRET

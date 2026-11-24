@@ -32,10 +32,25 @@ export class AuthModalComponent {
   }
 
   async onRegister(): Promise<void> {
-    if (!this.registerData.email || !this.registerData.password) return;
+    const email = (this.registerData.email || '').trim();
+    const password = this.registerData.password || '';
+
+    if (!email) {
+      this.authService.authError.set('Please enter a valid email address');
+      return;
+    }
+    if (password.length < 8) {
+      this.authService.authError.set('Password must be at least 8 characters');
+      return;
+    }
+
     this.isSubmitting = true;
     try {
-      await this.authService.register(this.registerData);
+      await this.authService.register({
+        ...this.registerData,
+        email,
+        password
+      });
       this.registerData = { email: '', password: '', displayName: '', langPref: 'en' };
     } catch {
       // Error handled in authService signal

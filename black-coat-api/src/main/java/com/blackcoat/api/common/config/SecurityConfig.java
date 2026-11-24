@@ -37,7 +37,8 @@ public class SecurityConfig {
                     "/actuator/health",
                     "/actuator/info",
                     "/actuator/metrics",
-                    "/api/v1/chat/stream" // Token validated within stream or via filter
+                    "/api/v1/chat/stream",
+                    "/error"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

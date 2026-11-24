@@ -4,12 +4,73 @@
  */
 
 (() => {
-  // API Base URL - Configurable for local dev or Render production
-  const API_HOST = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:8080'
-    : window.location.origin;
+  // --------------------------------------------------------------------------
+  // API Host & Dynamic Base URL Resolver
+  // --------------------------------------------------------------------------
+  function getApiHost() {
+    const stored = localStorage.getItem('blackcoat_api_url');
+    if (stored && stored.trim()) {
+      return stored.trim().replace(/\/+$/, '');
+    }
+    if (window.__BLACKCOAT_API_URL__) {
+      return String(window.__BLACKCOAT_API_URL__).trim().replace(/\/+$/, '');
+    }
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '') {
+      return 'http://localhost:8080';
+    }
+    if (hostname.includes('.onrender.com')) {
+      if (hostname.includes('-web.')) {
+        return `https://${hostname.replace('-web.', '-api.')}`;
+      }
+      return 'https://black-coat-api.onrender.com';
+    }
+    return 'https://black-coat-api.onrender.com';
+  }
 
-  const API_BASE = `${API_HOST}/api/v1`;
+  function getApiBase() {
+    return `${getApiHost()}/api/v1`;
+  }
+
+  async function safeFetchJson(url, options = {}) {
+    let res;
+    try {
+      res = await fetch(url, options);
+    } catch (netErr) {
+      throw new Error(`Cannot reach backend at ${url}. If your Render service is waking up, please wait ~30 seconds and retry. (${netErr.message || 'Network error'})`);
+    }
+
+    const rawText = await res.text();
+    let data = null;
+
+    if (rawText && rawText.trim().length > 0) {
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        data = { error: rawText.replace(/<[^>]*>/g, ' ').substring(0, 200).trim() };
+      }
+    }
+
+    if (!res.ok) {
+      let errorMsg = data && (data.error || data.message);
+      if (!errorMsg) {
+        if (res.status === 404) {
+          errorMsg = `Endpoint not found (HTTP 404) at ${url}. Verify backend API URL configuration.`;
+        } else if (res.status === 502 || res.status === 503 || res.status === 504) {
+          errorMsg = `Server is currently waking up (HTTP ${res.status}). Render free instances take ~45s to spin up. Please retry in a moment.`;
+        } else {
+          errorMsg = `Server error HTTP ${res.status} (${res.statusText || 'Request failed'})`;
+        }
+      }
+      throw new Error(errorMsg);
+    }
+
+    if (!data) {
+      throw new Error(`Server returned an empty response (HTTP ${res.status}). Verify your backend URL.`);
+    }
+
+    return data;
+  }
 
   // Application State
   const state = {
@@ -61,12 +122,34 @@
   const citText = document.getElementById('cit-text');
   const citLink = document.getElementById('cit-link');
 
+  // Configure API URL on server-status click
+  if (serverStatus) {
+    serverStatus.style.cursor = 'pointer';
+    serverStatus.setAttribute('title', 'Click to view or change backend API URL');
+    serverStatus.addEventListener('click', () => {
+      const current = getApiHost();
+      const input = prompt(
+        `Backend API Endpoint URL:\n\nCurrent: ${current}\n\nEnter custom API URL (or leave blank to reset to auto):`,
+        localStorage.getItem('blackcoat_api_url') || ''
+      );
+      if (input !== null) {
+        if (input.trim()) {
+          localStorage.setItem('blackcoat_api_url', input.trim().replace(/\/+$/, ''));
+        } else {
+          localStorage.removeItem('blackcoat_api_url');
+        }
+        checkServerHealth();
+      }
+    });
+  }
+
   // --------------------------------------------------------------------------
   // 1. Cold Start Wake-up Check
   // --------------------------------------------------------------------------
   async function checkServerHealth() {
+    const host = getApiHost();
     try {
-      const res = await fetch(`${API_HOST}/actuator/health`, { method: 'GET' });
+      const res = await fetch(`${host}/actuator/health`, { method: 'GET' });
       if (res.ok) {
         serverStatus.className = 'server-status status-online';
         statusText.textContent = 'API Online (JVM)';
@@ -76,7 +159,7 @@
     } catch {
       serverStatus.className = 'server-status status-waking';
       statusText.textContent = 'Server Waking Up...';
-      setTimeout(checkServerHealth, 4000); // Poll until backend wakes up
+      setTimeout(checkServerHealth, 5000); // Poll until backend wakes up
     }
   }
 
@@ -98,22 +181,26 @@
   async function handleLogin(e) {
     e.preventDefault();
     authError.classList.add('hidden');
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+    const email = (document.getElementById('login-email').value || '').trim();
+    const password = document.getElementById('login-password').value || '';
+
+    if (!email || !password) {
+      authError.textContent = 'Please enter email and password.';
+      authError.classList.remove('hidden');
+      return;
+    }
 
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
+      const data = await safeFetchJson(`${getApiBase()}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
 
       setSession(data);
       authModal.classList.add('hidden');
     } catch (err) {
-      authError.textContent = err.message;
+      authError.textContent = err.message || 'Login failed';
       authError.classList.remove('hidden');
     }
   }
@@ -121,23 +208,33 @@
   async function handleRegister(e) {
     e.preventDefault();
     authError.classList.add('hidden');
-    const displayName = document.getElementById('reg-name').value;
-    const email = document.getElementById('reg-email').value;
-    const password = document.getElementById('reg-password').value;
+    const displayName = (document.getElementById('reg-name').value || '').trim();
+    const email = (document.getElementById('reg-email').value || '').trim();
+    const password = document.getElementById('reg-password').value || '';
+
+    if (!email) {
+      authError.textContent = 'Please enter a valid email address.';
+      authError.classList.remove('hidden');
+      return;
+    }
+
+    if (password.length < 8) {
+      authError.textContent = 'Password must be at least 8 characters long.';
+      authError.classList.remove('hidden');
+      return;
+    }
 
     try {
-      const res = await fetch(`${API_BASE}/auth/register`, {
+      const data = await safeFetchJson(`${getApiBase()}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, displayName, langPref: state.selectedLang })
+        body: JSON.stringify({ email, password, displayName: displayName || 'Advocate', langPref: state.selectedLang })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Registration failed');
 
       setSession(data);
       authModal.classList.add('hidden');
     } catch (err) {
-      authError.textContent = err.message;
+      authError.textContent = err.message || 'Registration failed';
       authError.classList.remove('hidden');
     }
   }
@@ -193,7 +290,7 @@
         headers['Authorization'] = `Bearer ${state.token}`;
       }
 
-      const response = await fetch(`${API_BASE}/chat/stream`, {
+      const response = await fetch(`${getApiBase()}/chat/stream`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ question: questionText })

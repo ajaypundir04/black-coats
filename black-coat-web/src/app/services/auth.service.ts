@@ -1,5 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { User, AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
+import { getApiHost, safeFetchJson } from './api-config';
 
 @Injectable({
   providedIn: 'root'
@@ -9,11 +10,9 @@ export class AuthService {
   private readonly REFRESH_KEY = 'blackcoat_refresh_token';
   private readonly USER_KEY = 'blackcoat_user';
 
-  private readonly API_HOST = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:8080'
-    : window.location.origin;
-
-  private readonly API_BASE = `${this.API_HOST}/api/v1/auth`;
+  get apiBase(): string {
+    return `${getApiHost()}/api/v1/auth`;
+  }
 
   // Reactive Signals
   readonly token = signal<string | null>(localStorage.getItem(this.TOKEN_KEY));
@@ -27,13 +26,11 @@ export class AuthService {
   async login(credentials: LoginRequest): Promise<void> {
     this.authError.set(null);
     try {
-      const res = await fetch(`${this.API_BASE}/login`, {
+      const data = await safeFetchJson<AuthResponse>(`${this.apiBase}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
 
       this.setSession(data);
       this.isAuthModalOpen.set(false);
@@ -46,13 +43,11 @@ export class AuthService {
   async register(req: RegisterRequest): Promise<void> {
     this.authError.set(null);
     try {
-      const res = await fetch(`${this.API_BASE}/register`, {
+      const data = await safeFetchJson<AuthResponse>(`${this.apiBase}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(req)
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Registration failed');
 
       this.setSession(data);
       this.isAuthModalOpen.set(false);

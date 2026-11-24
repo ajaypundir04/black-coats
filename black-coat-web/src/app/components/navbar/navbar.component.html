@@ -8,7 +8,7 @@
   </div>
 
   <!-- Cold start status indicator -->
-  <div class="server-status" [ngClass]="'status-' + healthService.serverStatus()">
+  <div class="server-status" [ngClass]="'status-' + healthService.serverStatus()" (click)="configureApiUrl()" style="cursor: pointer;" title="Click to view or change backend API URL">
     <span class="status-dot"></span>
     <span class="status-label">{{ healthService.statusLabel() }}</span>
   </div>

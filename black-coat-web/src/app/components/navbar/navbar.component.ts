@@ -23,4 +23,15 @@ export class NavbarComponent {
     const val = (event.target as HTMLSelectElement).value;
     this.chatService.selectedLang.set(val);
   }
+
+  configureApiUrl(): void {
+    const current = this.healthService.apiHost;
+    const promptVal = prompt(
+      `Current Backend API URL: ${current}\n\nEnter backend API endpoint URL (or leave blank for auto-detected):`,
+      current
+    );
+    if (promptVal !== null) {
+      this.healthService.updateApiUrl(promptVal.trim() || null);
+    }
+  }
 }

@@ -50,10 +50,15 @@ Render's free database expires after 30 days and does not include pgvector by de
    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
    ```
 5. Click **Run** to confirm the extensions are enabled.
-6. Navigate to **Project Settings** $\rightarrow$ **Database** $\rightarrow$ **Connection string** $\rightarrow$ **URI**.
-7. Your JDBC connection URL will look like:
+6. Navigate to **Project Settings** $\rightarrow$ **Database** $\rightarrow$ **Connection Pooling** (or click the **Connect** button in the header).
+   > [!IMPORTANT]
+   > **Render requires an IPv4 connection!** Do NOT use the direct `db.<ref>.supabase.co` URL because it resolves to IPv6, which causes `java.net.SocketException: Network unreachable` on Render.
+   > Instead, use the **Connection Pooler (IPv4)** address:
+   > - **Mode:** Session
+   > - **Host:** `aws-0-<region>.pooler.supabase.com` (Port `5432` or `6543`)
+7. Format the JDBC connection string as:
    ```
-   jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require
+   jdbc:postgresql://aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require
    ```
 
 ---
@@ -96,8 +101,8 @@ If you prefer configuring services individually:
 
 | Key | Value / Example | Notes |
 |---|---|---|
-| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://db.<ref>.supabase.co:5432/postgres?sslmode=require` | Enable SSL |
-| `SPRING_DATASOURCE_USERNAME` | `postgres` | DB user |
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require` | IPv4 Pooler Host |
+| `SPRING_DATASOURCE_USERNAME` | `postgres.<project-ref>` (e.g. `postgres.tffeiemnejgnanxwegpx`) | Must include project-ref! |
 | `SPRING_DATASOURCE_PASSWORD` | `<your-db-password>` | DB password |
 | `BLACKCOAT_JWT_SECRET` | Generate with `openssl rand -hex 32` | 64-char hex key |
 | `GEMINI_API_KEY` | `AIzaSy...` | Free Gemini API key |

@@ -30,7 +30,7 @@ COPY --from=builder /app/target/*.jar app.jar
 # -XX:+UseCompactObjectHeaders: Reduces memory footprint of object headers
 # -XX:MaxRAMPercentage=75.0: Keeps heap within free tier container memory limit
 # -XX:+UseStringDeduplication: Saves memory on duplicated string tokens
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -XX:+UseStringDeduplication -Djava.security.egd=file:/dev/./urandom"
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -XX:+UseStringDeduplication -Djava.security.egd=file:/dev/./urandom -Djava.net.preferIPv4Stack=true"
 
 EXPOSE 8080
 

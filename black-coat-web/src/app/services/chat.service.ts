@@ -1,16 +1,15 @@
 import { Injectable, signal } from '@angular/core';
 import { ChatMessage, VerifiedCitation } from '../models/chat.model';
 import { AuthService } from './auth.service';
+import { getApiHost } from './api-config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  private readonly API_HOST = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:8080'
-    : window.location.origin;
-
-  private readonly API_STREAM_URL = `${this.API_HOST}/api/v1/chat/stream`;
+  get apiStreamUrl(): string {
+    return `${getApiHost()}/api/v1/chat/stream`;
+  }
 
   // Signals
   readonly messages = signal<ChatMessage[]>([]);
@@ -56,7 +55,7 @@ export class ChatService {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(this.API_STREAM_URL, {
+      const response = await fetch(this.apiStreamUrl, {
         method: 'POST',
         headers,
         body: JSON.stringify({ question: trimmed })
